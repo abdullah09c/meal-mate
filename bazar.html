@@ -26,23 +26,23 @@
                 
                 <div class="header-center">
                     <nav class="main-nav">
-                        <a href="dashboard.html" class="nav-item">
+                        <a href="dashboard.html" class="nav-item" id="dashboardLink">
                             <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
-                        <a href="reports.html" class="nav-item">
+                        <a href="reports.html" class="nav-item" id="reportsLink">
                             <i class="fas fa-chart-line"></i>
                             <span>Reports</span>
                         </a>
-                        <a href="bazar.html" class="nav-item active">
+                        <a href="bazar.html" class="nav-item active" id="bazarLink">
                             <i class="fas fa-shopping-cart"></i>
                             <span>Bazar</span>
                         </a>
-                        <a href="deposit.html" class="nav-item">
+                        <a href="deposit.html" class="nav-item" id="depositLink">
                             <i class="fas fa-wallet"></i>
                             <span>Deposits</span>
                         </a>
-                        <a href="members.html" class="nav-item">
+                        <a href="members.html" class="nav-item" id="membersLink">
                             <i class="fas fa-users"></i>
                             <span>Members</span>
                         </a>
@@ -64,7 +64,7 @@
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="profile.html?userId=1" class="dropdown-item">
+                                    <a href="profile.html" class="dropdown-item" id="profileLink">
                                         <i class="fas fa-user"></i>
                                         <span>Profile</span>
                                     </a>
@@ -86,34 +86,389 @@
         </header>
 
         <main class="dashboard-main">
-            <div style="text-align: center; padding: 4rem 2rem;">
-                <div class="feature-icon bazar" style="margin: 0 auto 2rem; width: 100px; height: 100px; font-size: 3rem;">
-                    <i class="fas fa-shopping-cart"></i>
+            <div class="bazar-container">
+                <!-- Header Section -->
+                <div class="bazar-header">
+                    <div class="header-content">
+                        <div class="feature-icon bazar">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="header-text">
+                            <h1>Bazar Management</h1>
+                            <p>Track and manage grocery shopping expenses</p>
+                        </div>
+                    </div>
+                    <div class="header-actions-group">
+                        <button class="add-bazar-btn" onclick="openBazarModal()">
+                            <i class="fas fa-plus"></i>
+                            Add New Bazar
+                        </button>
+                        <button class="action-btn secondary" onclick="exportBazarData()" title="Export Data">
+                            <i class="fas fa-download"></i>
+                            Export
+                        </button>
+                        <button class="action-btn outline" onclick="loadBazarRecords()" title="Refresh">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh
+                        </button>
+                    </div>
                 </div>
-                <h1 style="color: #1e293b; margin-bottom: 1rem;">Bazar Management</h1>
-                <p style="color: #64748b; font-size: 1.2rem; margin-bottom: 2rem;">
-                    Smart grocery shopping and market expense tracking system coming soon!
-                </p>
-                <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 2rem;">
-                    <h3 style="color: #1e293b; margin-bottom: 1rem;">Features in Development:</h3>
-                    <ul style="color: #64748b; text-align: left; max-width: 400px; margin: 0 auto;">
-                        <li>Create and manage shopping lists</li>
-                        <li>Track grocery expenses</li>
-                        <li>Compare market prices</li>
-                        <li>Set budget limits for shopping</li>
-                        <li>Monitor seasonal price changes</li>
-                        <li>Vendor and shop management</li>
-                    </ul>
+
+                <!-- Breadcrumb Navigation -->
+                <nav class="breadcrumb-nav">
+                    <div class="breadcrumb-container">
+                        <div class="breadcrumb-items">
+                            <a href="dashboard.html" class="breadcrumb-item">
+                                <i class="fas fa-home"></i>
+                                <span>Dashboard</span>
+                            </a>
+                            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                            <span class="breadcrumb-item current">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Bazar Management</span>
+                            </span>
+                        </div>
+                        <div class="breadcrumb-meta">
+                            <span class="page-info">
+                                <i class="fas fa-clock"></i>
+                                Last updated: <span id="lastUpdated">Just now</span>
+                            </span>
+                        </div>
+                    </div>
+                </nav>
+
+                <!-- Quick Summary Cards -->
+                <div class="bazar-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="summary-details">
+                            <h3 class="summary-amount" id="todaySpent">৳0</h3>
+                            <p class="summary-label">Today's Spending</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-calendar-week"></i>
+                        </div>
+                        <div class="summary-details">
+                            <h3 class="summary-amount" id="weekSpent">৳0</h3>
+                            <p class="summary-label">This Week</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="summary-details">
+                            <h3 class="summary-amount" id="monthSpent">৳0</h3>
+                            <p class="summary-label">This Month</p>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="summary-details">
+                            <h3 class="summary-amount" id="averageSpent">৳0</h3>
+                            <p class="summary-label">Daily Average</p>
+                        </div>
+                    </div>
                 </div>
-                <a href="dashboard.html" class="action-btn">
-                    <i class="fas fa-home"></i>
-                    Return to Dashboard
-                </a>
+
+                <!-- Enhanced Filter Section -->
+                <div class="filter-section enhanced">
+                    <div class="filter-header">
+                        <h3>
+                            <i class="fas fa-filter"></i>
+                            Filter & Search
+                        </h3>
+                        <div class="filter-actions">
+                            <button class="filter-preset" onclick="setPresetFilter('today')">
+                                <i class="fas fa-calendar-day"></i>
+                                Today
+                            </button>
+                            <button class="filter-preset" onclick="setPresetFilter('week')">
+                                <i class="fas fa-calendar-week"></i>
+                                This Week
+                            </button>
+                            <button class="filter-preset" onclick="setPresetFilter('month')">
+                                <i class="fas fa-calendar-alt"></i>
+                                This Month
+                            </button>
+                        </div>
+                    </div>
+                    <div class="filter-controls-grid">
+                        <div class="filter-group">
+                            <label for="searchInput">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </label>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Search by member, description or items...">
+                        </div>
+                        <div class="filter-group">
+                            <label for="memberFilter">
+                                <i class="fas fa-user"></i>
+                                Member
+                            </label>
+                            <select id="memberFilter" class="form-control">
+                                <option value="">All Members</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="monthFilter">
+                                <i class="fas fa-calendar"></i>
+                                Month
+                            </label>
+                            <select id="monthFilter" class="form-control">
+                                <option value="">All Months</option>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="yearFilter">
+                                <i class="fas fa-calendar-alt"></i>
+                                Year
+                            </label>
+                            <select id="yearFilter" class="form-control">
+                                <option value="">All Years</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label for="minAmount">
+                                <i class="fas fa-greater-than-equal"></i>
+                                Min Amount
+                            </label>
+                            <input type="number" id="minAmount" class="form-control" placeholder="Min ৳" min="0" step="0.01">
+                        </div>
+                        <div class="filter-group">
+                            <label for="maxAmount">
+                                <i class="fas fa-less-than-equal"></i>
+                                Max Amount
+                            </label>
+                            <input type="number" id="maxAmount" class="form-control" placeholder="Max ৳" min="0" step="0.01">
+                        </div>
+                        <div class="filter-group">
+                            <label for="sortBy">
+                                <i class="fas fa-sort"></i>
+                                Sort By
+                            </label>
+                            <select id="sortBy" class="form-control">
+                                <option value="date_desc">Date (Newest First)</option>
+                                <option value="date_asc">Date (Oldest First)</option>
+                                <option value="amount_desc">Amount (High to Low)</option>
+                                <option value="amount_asc">Amount (Low to High)</option>
+                                <option value="member_name">Member Name</option>
+                            </select>
+                        </div>
+                        <div class="filter-actions">
+                            <button class="action-btn primary" onclick="applyFilters()">
+                                <i class="fas fa-search"></i>
+                                Apply Filters
+                            </button>
+                            <button class="action-btn outline" onclick="clearFilters()">
+                                <i class="fas fa-times"></i>
+                                Clear All
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bazar Records History -->
+                <div class="bazar-history">
+                    <div class="history-header">
+                        <h2>
+                            <i class="fas fa-history"></i>
+                            Recent Bazar Records
+                        </h2>
+                        <div class="history-filters">
+                            <div class="view-toggles">
+                                <button class="toggle-btn active" data-view="card" onclick="toggleView('card')">
+                                    <i class="fas fa-th-large"></i>
+                                    <span>Cards</span>
+                                </button>
+                                <button class="toggle-btn" data-view="table" onclick="toggleView('table')">
+                                    <i class="fas fa-list"></i>
+                                    <span>Table</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card View -->
+                    <div id="cardView" class="records-view active">
+                        <div id="bazarCardsContainer" class="bazar-cards-grid">
+                            <!-- Loading State -->
+                            <div class="loading-state" id="loadingState">
+                                <div class="loading-spinner">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </div>
+                                <p>Loading bazar records...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table View -->
+                    <div id="tableView" class="records-view">
+                        <div class="bazar-table">
+                            <table id="bazarTable">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Member</th>
+                                        <th>Amount</th>
+                                        <th>Description</th>
+                                        <th>Items</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bazarTableBody">
+                                    <!-- Bazar records will be loaded dynamically -->
+                                    <tr class="loading-row">
+                                        <td colspan="6" style="text-align: center; padding: 2rem; color: #64748b;">
+                                            <i class="fas fa-spinner fa-spin"></i>
+                                            Loading bazar records...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Empty State -->
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h3>No Bazar Records Yet</h3>
+                        <p>Start tracking your grocery expenses by adding your first bazar record</p>
+                        <button class="add-bazar-btn" onclick="openBazarModal()">
+                            <i class="fas fa-plus"></i>
+                            Add First Bazar Record
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Action Button -->
+            <div class="floating-action-btn" onclick="openBazarModal()" title="Add New Bazar Record">
+                <i class="fas fa-plus"></i>
             </div>
         </main>
+
+        <!-- Add Bazar Modal -->
+        <div class="modal-overlay" id="bazarModal">
+            <div class="modal-container">
+                <div class="modal-header">
+                    <h2>
+                        <i class="fas fa-plus"></i>
+                        <span id="modalTitle">Add New Bazar Record</span>
+                    </h2>
+                    <button class="close-btn" onclick="closeBazarModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <form class="modal-form" id="bazarForm">
+                    <div class="form-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-shopping-cart"></i>
+                            Bazar Information
+                        </h3>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="memberSelect">
+                                    <i class="fas fa-user"></i>
+                                    Member
+                                </label>
+                                <select id="memberSelect" name="member_id" required>
+                                    <option value="">Select Member</option>
+                                    <!-- Members will be loaded dynamically -->
+                                </select>
+                                <div class="error-message" id="member-error"></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="bazarDate">
+                                    <i class="fas fa-calendar"></i>
+                                    Date
+                                </label>
+                                <input type="date" id="bazarDate" name="date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="totalCost">
+                                <i class="fas fa-piggy-bank"></i>
+                                Total Cost (৳)
+                            </label>
+                            <input type="number" id="totalCost" name="total_cost" required min="0" step="0.01" placeholder="0.00">
+                            <div class="error-message" id="cost-error"></div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">
+                                <i class="fas fa-comment"></i>
+                                Description
+                            </label>
+                            <textarea id="description" name="description" placeholder="Brief description of the shopping (optional)" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="items">
+                                <i class="fas fa-list"></i>
+                                Items Purchased
+                            </label>
+                            <textarea id="items" name="items" placeholder="List items purchased (one per line or comma separated)" rows="4"></textarea>
+                            <small class="help-text">Example: Rice 2kg, Vegetables, Cooking Oil</small>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="cancel-btn" onclick="closeBazarModal()">
+                            <i class="fas fa-times"></i>
+                            Cancel
+                        </button>
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-plus"></i>
+                            <span id="submitBtnText">Add Bazar Record</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div class="toast-notification" id="toastNotification">
+            <div class="toast-content">
+                <div class="toast-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="toast-message">
+                    <span id="toastMessage">Success message</span>
+                </div>
+                <button class="toast-close" onclick="hideToast()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
     </div>
     
     <script src="main.js"></script>
     <script src="dashboard.js"></script>
+    <script src="bazar.js"></script>
 </body>
 </html>

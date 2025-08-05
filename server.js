@@ -124,6 +124,30 @@ db.connect((err) => {
       console.log('Deposits table ready');
     }
   });
+
+  // Create bazar table if it doesn't exist
+  const createBazarTable = `
+    CREATE TABLE IF NOT EXISTS bazar (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      member_id INT NOT NULL,
+      member_name VARCHAR(100) NOT NULL,
+      total_cost DECIMAL(10,2) NOT NULL,
+      date DATE NOT NULL,
+      description TEXT,
+      items JSON,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      FOREIGN KEY (member_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `;
+  
+  db.query(createBazarTable, (err) => {
+    if (err) {
+      console.error('Error creating bazar table:', err);
+    } else {
+      console.log('Bazar table ready');
+    }
+  });
 });
 
 // Routes
@@ -1082,6 +1106,213 @@ app.get('/api/deposits/user/:userId/summary', (req, res) => {
     }
     
     res.json(results[0]);
+  });
+});
+
+// ==================== BAZAR API ENDPOINTS ====================
+
+// Get all bazar records with optional month/year filter
+app.get('/api/bazar', (req, res) => {
+  const { month, year, user_id } = req.query;
+  
+  let query = `
+    SELECT b.*, u.full_name as member_name
+    FROM bazar b
+    LEFT JOIN users u ON b.member_id = u.id
+    WHERE 1=1
+  `;
+  const params = [];
+  
+  if (month && year) {
+    query += ' AND MONTH(b.date) = ? AND YEAR(b.date) = ?';
+    params.push(month, year);
+  }
+  
+  if (user_id) {
+    query += ' AND b.member_id = ?';
+    params.push(user_id);
+  }
+  
+  query += ' ORDER BY b.date DESC, b.created_at DESC';
+  
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error fetching bazar records:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving bazar records' 
+      });
+    }
+    
+    res.json(results);
+  });
+});
+
+// Add new bazar record
+app.post('/api/bazar', (req, res) => {
+  const { member_id, member_name, total_cost, date, description, items } = req.body;
+  
+  if (!member_id || !member_name || !total_cost || !date) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Member ID, name, total cost, and date are required' 
+    });
+  }
+  
+  const query = `
+    INSERT INTO bazar (member_id, member_name, total_cost, date, description, items)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+  
+  const itemsJson = items ? JSON.stringify(items) : null;
+  
+  db.query(query, [member_id, member_name, total_cost, date, description, itemsJson], (err, result) => {
+    if (err) {
+      console.error('Error adding bazar record:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error adding bazar record' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Bazar record added successfully',
+      bazarId: result.insertId
+    });
+  });
+});
+
+// Update bazar record
+app.put('/api/bazar/:id', (req, res) => {
+  const bazarId = req.params.id;
+  const { member_id, member_name, total_cost, date, description, items } = req.body;
+  
+  if (!member_id || !member_name || !total_cost || !date) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Member ID, name, total cost, and date are required' 
+    });
+  }
+  
+  const query = `
+    UPDATE bazar 
+    SET member_id = ?, member_name = ?, total_cost = ?, date = ?, description = ?, items = ?
+    WHERE id = ?
+  `;
+  
+  const itemsJson = items ? JSON.stringify(items) : null;
+  
+  db.query(query, [member_id, member_name, total_cost, date, description, itemsJson, bazarId], (err, result) => {
+    if (err) {
+      console.error('Error updating bazar record:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error updating bazar record' 
+      });
+    }
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Bazar record not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Bazar record updated successfully' 
+    });
+  });
+});
+
+// Delete bazar record
+app.delete('/api/bazar/:id', (req, res) => {
+  const bazarId = req.params.id;
+  
+  db.query('DELETE FROM bazar WHERE id = ?', [bazarId], (err, result) => {
+    if (err) {
+      console.error('Error deleting bazar record:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error deleting bazar record' 
+      });
+    }
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Bazar record not found' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Bazar record deleted successfully' 
+    });
+  });
+});
+
+// Get bazar summary statistics
+app.get('/api/bazar/summary', (req, res) => {
+  const { month, year } = req.query;
+  
+  let query = `
+    SELECT 
+      COALESCE(SUM(total_cost), 0) as total_spent,
+      COALESCE(COUNT(*), 0) as total_records,
+      COALESCE(AVG(total_cost), 0) as average_cost,
+      COALESCE(MAX(total_cost), 0) as highest_cost,
+      COALESCE(MIN(total_cost), 0) as lowest_cost
+    FROM bazar
+    WHERE 1=1
+  `;
+  const params = [];
+  
+  if (month && year) {
+    query += ' AND MONTH(date) = ? AND YEAR(date) = ?';
+    params.push(month, year);
+  }
+  
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error('Error fetching bazar summary:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving bazar summary' 
+      });
+    }
+    
+    res.json(results[0]);
+  });
+});
+
+// Get monthly bazar summary
+app.get('/api/bazar/monthly-summary', (req, res) => {
+  const query = `
+    SELECT 
+      YEAR(date) as year,
+      MONTH(date) as month,
+      MONTHNAME(date) as month_name,
+      COUNT(*) as total_records,
+      SUM(total_cost) as total_spent,
+      AVG(total_cost) as average_cost
+    FROM bazar
+    GROUP BY YEAR(date), MONTH(date)
+    ORDER BY YEAR(date) DESC, MONTH(date) DESC
+    LIMIT 12
+  `;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching monthly bazar summary:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving monthly bazar summary' 
+      });
+    }
+    
+    res.json(results);
   });
 });
 
