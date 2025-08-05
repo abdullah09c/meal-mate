@@ -38,6 +38,8 @@ db.connect((err) => {
       username VARCHAR(100) UNIQUE NOT NULL,
       phone VARCHAR(20),
       password_hash VARCHAR(255) NOT NULL,
+      role ENUM('admin', 'member', 'guest') DEFAULT 'member',
+      initial_deposit DECIMAL(10,2) DEFAULT 0.00,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
       last_login TIMESTAMP NULL,
       is_active BOOLEAN DEFAULT TRUE
@@ -46,9 +48,80 @@ db.connect((err) => {
   
   db.query(createTableQuery, (err) => {
     if (err) {
-      console.error('Error creating table:', err);
+      console.error('Error creating users table:', err);
     } else {
       console.log('Users table ready');
+    }
+  });
+
+  // Create members table
+  const createMembersTable = `
+    CREATE TABLE IF NOT EXISTS members (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      role ENUM('admin', 'member', 'guest') DEFAULT 'member',
+      initial_deposit DECIMAL(10,2) DEFAULT 0.00,
+      join_date DATE NOT NULL,
+      user_id INT,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      is_active BOOLEAN DEFAULT TRUE,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    )
+  `;
+  
+  db.query(createMembersTable, (err) => {
+    if (err) {
+      console.error('Error creating members table:', err);
+    } else {
+      console.log('Members table ready');
+    }
+  });
+
+  // Create meal_reports table
+  const createMealReportsTable = `
+    CREATE TABLE IF NOT EXISTS meal_reports (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      member_id INT,
+      date DATE NOT NULL,
+      breakfast_cost DECIMAL(8,2) DEFAULT 0.00,
+      lunch_cost DECIMAL(8,2) DEFAULT 0.00,
+      dinner_cost DECIMAL(8,2) DEFAULT 0.00,
+      total_cost DECIMAL(8,2) GENERATED ALWAYS AS (breakfast_cost + lunch_cost + dinner_cost) STORED,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+    )
+  `;
+  
+  db.query(createMealReportsTable, (err) => {
+    if (err) {
+      console.error('Error creating meal_reports table:', err);
+    } else {
+      console.log('Meal reports table ready');
+    }
+  });
+
+  // Create deposits table
+  const createDepositsTable = `
+    CREATE TABLE IF NOT EXISTS deposits (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT,
+      member_id INT,
+      amount DECIMAL(10,2) NOT NULL,
+      description VARCHAR(255),
+      deposit_date DATE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (member_id) REFERENCES members(id) ON DELETE CASCADE
+    )
+  `;
+  
+  db.query(createDepositsTable, (err) => {
+    if (err) {
+      console.error('Error creating deposits table:', err);
+    } else {
+      console.log('Deposits table ready');
     }
   });
 });
@@ -76,6 +149,10 @@ app.get('/dashboard', (req, res) => {
 
 app.get('/profile', (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+app.get('/members', (req, res) => {
+  res.sendFile(path.join(__dirname, 'members.html'));
 });
 
 // Login route
@@ -412,7 +489,7 @@ app.get('/api/total-meals', (req, res) => {
 app.get('/api/user-profile', (req, res) => {
   const userId = req.query.userId || 1; // In a real app, get from session
   
-  const query = 'SELECT id, full_name as fullname, email, phone, created_at FROM users WHERE id = ?';
+  const query = 'SELECT id, full_name as fullname, email, username, phone, created_at FROM users WHERE id = ?';
   db.query(query, [userId], (err, results) => {
     if (err) {
       console.error('Database error:', err);
@@ -465,19 +542,19 @@ app.get('/api/user-deposits-total', (req, res) => {
 app.put('/api/update-profile', async (req, res) => {
   try {
     const userId = req.query.userId || 1; // In a real app, get from session
-    const { fullname, email, phone } = req.body;
+    const { fullname, username, email, phone } = req.body;
     
     // Validation
-    if (!fullname || !email) {
+    if (!fullname || !email || !username) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Name and email are required' 
+        message: 'Name, username and email are required' 
       });
     }
     
-    // Check if email is already taken by another user
-    const checkEmailQuery = 'SELECT id FROM users WHERE email = ? AND id != ?';
-    db.query(checkEmailQuery, [email, userId], (err, results) => {
+    // Check if email or username is already taken by another user
+    const checkQuery = 'SELECT id FROM users WHERE (email = ? OR username = ?) AND id != ?';
+    db.query(checkQuery, [email, username, userId], (err, results) => {
       if (err) {
         console.error('Database error:', err);
         return res.status(500).json({ message: 'Database error' });
@@ -486,13 +563,13 @@ app.put('/api/update-profile', async (req, res) => {
       if (results.length > 0) {
         return res.status(400).json({ 
           success: false, 
-          message: 'Email is already taken by another user' 
+          message: 'Email or username is already taken by another user' 
         });
       }
       
       // Update user profile
-      const updateQuery = 'UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?';
-      db.query(updateQuery, [fullname, email, phone, userId], (err, results) => {
+      const updateQuery = 'UPDATE users SET full_name = ?, username = ?, email = ?, phone = ? WHERE id = ?';
+      db.query(updateQuery, [fullname, username, email, phone, userId], (err, results) => {
         if (err) {
           console.error('Database error:', err);
           return res.status(500).json({ message: 'Failed to update profile' });
@@ -576,6 +653,227 @@ app.put('/api/change-password', async (req, res) => {
   } catch (error) {
     console.error('Server error:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// ===== MEMBER MANAGEMENT API ENDPOINTS =====
+
+// Get all members for a user
+app.get('/api/members', (req, res) => {
+  const userId = req.query.userId || 1;
+  
+  const query = `
+    SELECT 
+      id, 
+      name, 
+      role, 
+      initial_deposit, 
+      join_date,
+      created_at,
+      is_active
+    FROM members 
+    WHERE user_id = ? AND is_active = TRUE
+    ORDER BY created_at DESC
+  `;
+  
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Database error' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      members: results 
+    });
+  });
+});
+
+// Add new member
+app.post('/api/members', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1;
+    const { name, role, joinDate, initialDeposit, adminPassword } = req.body;
+    
+    // Validation
+    if (!name || !role || !joinDate || initialDeposit === undefined || !adminPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All fields are required' 
+      });
+    }
+    
+    // Verify admin password
+    const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    db.query(getUserQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Database error' 
+        });
+      }
+      
+      if (results.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+      
+      const user = results[0];
+      const passwordMatch = await bcrypt.compare(adminPassword, user.password_hash);
+      
+      if (!passwordMatch) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Incorrect password' 
+        });
+      }
+      
+      // Insert new member
+      const insertMemberQuery = `
+        INSERT INTO members (name, role, initial_deposit, join_date, user_id) 
+        VALUES (?, ?, ?, ?, ?)
+      `;
+      
+      db.query(insertMemberQuery, [name, role, initialDeposit, joinDate, userId], (insertErr, insertResults) => {
+        if (insertErr) {
+          console.error('Error inserting member:', insertErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Error adding member' 
+          });
+        }
+        
+        // If initial deposit > 0, add it to deposits table
+        if (parseFloat(initialDeposit) > 0) {
+          const insertDepositQuery = `
+            INSERT INTO deposits (user_id, member_id, amount, description, deposit_date) 
+            VALUES (?, ?, ?, ?, ?)
+          `;
+          
+          db.query(insertDepositQuery, [
+            userId, 
+            insertResults.insertId, 
+            initialDeposit, 
+            'Initial deposit', 
+            joinDate
+          ], (depositErr) => {
+            if (depositErr) {
+              console.error('Error adding initial deposit:', depositErr);
+            }
+          });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Member added successfully',
+          memberId: insertResults.insertId 
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+});
+
+// Remove member
+app.delete('/api/members/:memberId', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1;
+    const memberId = req.params.memberId;
+    const { adminPassword } = req.body;
+    
+    // Validation
+    if (!adminPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password is required for confirmation' 
+      });
+    }
+    
+    // Verify admin password
+    const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    db.query(getUserQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Database error' 
+        });
+      }
+      
+      if (results.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+      
+      const user = results[0];
+      const passwordMatch = await bcrypt.compare(adminPassword, user.password_hash);
+      
+      if (!passwordMatch) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Incorrect password' 
+        });
+      }
+      
+      // Check if member exists and belongs to this user
+      const checkMemberQuery = 'SELECT name FROM members WHERE id = ? AND user_id = ?';
+      db.query(checkMemberQuery, [memberId, userId], (checkErr, checkResults) => {
+        if (checkErr) {
+          console.error('Database error:', checkErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Database error' 
+          });
+        }
+        
+        if (checkResults.length === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'Member not found' 
+          });
+        }
+        
+        const memberName = checkResults[0].name;
+        
+        // Soft delete member (set is_active to false)
+        const deleteMemberQuery = 'UPDATE members SET is_active = FALSE WHERE id = ? AND user_id = ?';
+        db.query(deleteMemberQuery, [memberId, userId], (deleteErr) => {
+          if (deleteErr) {
+            console.error('Error deleting member:', deleteErr);
+            return res.status(500).json({ 
+              success: false, 
+              message: 'Error removing member' 
+            });
+          }
+          
+          res.json({ 
+            success: true, 
+            message: `${memberName} removed successfully` 
+          });
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
   }
 });
 

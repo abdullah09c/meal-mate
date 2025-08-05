@@ -66,6 +66,11 @@ body:not(:has(.landing-page)):not(:has(.auth-page)):not(.auth-page) {
     margin: 0 auto 15px auto;
 }
 
+.logo-icon a{
+    color: white;
+    text-decoration: none;
+}
+
 .logo h1 {
     color: #10b981;
     margin: 0;

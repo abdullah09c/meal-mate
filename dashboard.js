@@ -15,9 +15,23 @@ class MealMateDashboard {
 
     getUserInfo() {
         const urlParams = new URLSearchParams(window.location.search);
-        this.userName = urlParams.get('user') || 'User';
-        // In a real app, you'd get userId from session/token
-        this.userId = 1; // Default for now
+        // First try to get userId from URL
+        this.userId = urlParams.get('userId') || 1;
+        
+        // Try to get user data from localStorage
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                this.userId = user.id || this.userId;
+                this.userName = user.fullName || user.username || 'User';
+            } catch (e) {
+                console.warn('Error parsing current user from localStorage:', e);
+                this.userName = urlParams.get('user') || 'User';
+            }
+        } else {
+            this.userName = urlParams.get('user') || 'User';
+        }
         
         // Update user name in the modern header
         const userNameElement = document.querySelector('.user-name');
@@ -293,9 +307,481 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.modern-dashboard')) {
         new MealMateDashboard();
     }
+    
+    // Initialize member management if on members page
+    if (document.querySelector('.members-container')) {
+        initializeMemberManagement();
+    }
 });
 
 // Export for potential use in other modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = MealMateDashboard;
 }
+
+// ===== MEMBER MANAGEMENT FUNCTIONS =====
+
+let currentMemberToRemove = null;
+let membersData = [];
+
+function initializeMemberManagement() {
+    // Set today's date as default for join date
+    const joinDateInput = document.getElementById('joinDate');
+    if (joinDateInput) {
+        joinDateInput.value = new Date().toISOString().split('T')[0];
+    }
+    
+    // Setup form submission handlers
+    setupAddMemberForm();
+    setupRemoveMemberForm();
+    
+    // Load existing members from database
+    loadMembersFromDatabase();
+}
+
+async function loadMembersFromDatabase() {
+    try {
+        const response = await fetch('/api/members?userId=1');
+        const data = await response.json();
+        
+        if (data.success) {
+            membersData = data.members.map(member => ({
+                id: member.id.toString(),
+                name: member.name,
+                role: member.role,
+                deposit: member.initial_deposit,
+                joinDate: member.join_date,
+                avatar: generateAvatar(member.name)
+            }));
+            
+            renderMembers();
+        } else {
+            console.error('Failed to load members:', data.message);
+            renderMembers(); // Show empty state
+        }
+    } catch (error) {
+        console.error('Error loading members:', error);
+        renderMembers(); // Show empty state
+    }
+}
+
+function setupAddMemberForm() {
+    const form = document.getElementById('addMemberForm');
+    if (!form) return;
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Clear previous errors
+        clearFormErrors();
+        
+        // Get form data
+        const formData = {
+            name: document.getElementById('memberName').value.trim(),
+            role: document.getElementById('memberRole').value,
+            joinDate: document.getElementById('joinDate').value,
+            deposit: parseFloat(document.getElementById('initialDeposit').value),
+            password: document.getElementById('adminPassword').value
+        };
+        
+        // Validate form
+        if (!validateAddMemberForm(formData)) {
+            return;
+        }
+        
+        // Simulate password verification (in real app, verify with backend)
+        if (!verifyAdminPassword(formData.password)) {
+            showFormError('password-error', 'Incorrect password. Please try again.');
+            return;
+        }
+        
+        // Add member
+        await addNewMember(formData);
+    });
+}
+
+function setupRemoveMemberForm() {
+    const form = document.getElementById('removeMemberForm');
+    if (!form) return;
+    
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Clear previous errors
+        clearFormErrors();
+        
+        const password = document.getElementById('confirmPassword').value;
+        
+        // Verify password
+        if (!verifyAdminPassword(password)) {
+            showFormError('confirm-password-error', 'Incorrect password. Please try again.');
+            return;
+        }
+        
+        // Remove member
+        await removeMemberById(currentMemberToRemove);
+    });
+}
+
+function validateAddMemberForm(data) {
+    let isValid = true;
+    
+    if (!data.name) {
+        showFormError('name-error', 'Please enter the member name');
+        isValid = false;
+    }
+    
+    if (!data.role) {
+        showFormError('name-error', 'Please select a role');
+        isValid = false;
+    }
+    
+    if (isNaN(data.deposit) || data.deposit < 0) {
+        showFormError('deposit-error', 'Please enter a valid deposit amount');
+        isValid = false;
+    }
+    
+    if (!data.password) {
+        showFormError('password-error', 'Please enter your password for confirmation');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+function verifyAdminPassword(password) {
+    // In a real application, this would verify against the server
+    // For demo purposes, we'll accept any non-empty password
+    return password.length > 0;
+}
+
+async function addNewMember(data) {
+    try {
+        // Show loading state
+        const submitBtn = document.querySelector('.submit-btn');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding Member...';
+        submitBtn.disabled = true;
+        
+        // Send data to backend
+        const response = await fetch('/api/members?userId=1', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: data.name,
+                role: data.role,
+                joinDate: data.joinDate,
+                initialDeposit: data.deposit,
+                adminPassword: data.password
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Reload members from database
+            await loadMembersFromDatabase();
+            
+            // Close modal and reset form
+            closeAddMemberModal();
+            document.getElementById('addMemberForm').reset();
+            
+            // Set join date to today for next use
+            document.getElementById('joinDate').value = new Date().toISOString().split('T')[0];
+            
+            // Show success message
+            showSuccessMessage(`${data.name} has been added successfully!`);
+        } else {
+            showFormError('password-error', result.message);
+        }
+        
+        // Reset button
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('Error adding member:', error);
+        showFormError('password-error', 'Failed to add member. Please try again.');
+        
+        // Reset button
+        const submitBtn = document.querySelector('.submit-btn');
+        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Add Member';
+        submitBtn.disabled = false;
+    }
+}
+
+async function removeMemberById(memberId) {
+    try {
+        // Show loading state
+        const deleteBtn = document.querySelector('.delete-btn');
+        const originalText = deleteBtn.innerHTML;
+        deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+        deleteBtn.disabled = true;
+        
+        // Find member name for success message
+        const member = membersData.find(m => m.id === memberId);
+        const memberName = member ? member.name : 'Member';
+        
+        // Get password from form
+        const password = document.getElementById('confirmPassword').value;
+        
+        // Send delete request to backend
+        const response = await fetch(`/api/members/${memberId}?userId=1`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                adminPassword: password
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            // Reload members from database
+            await loadMembersFromDatabase();
+            
+            // Close modal
+            closeRemoveMemberModal();
+            
+            // Show success message
+            showSuccessMessage(result.message);
+        } else {
+            showFormError('confirm-password-error', result.message);
+        }
+        
+        // Reset button
+        deleteBtn.innerHTML = originalText;
+        deleteBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('Error removing member:', error);
+        showFormError('confirm-password-error', 'Failed to remove member. Please try again.');
+        
+        // Reset button
+        const deleteBtn = document.querySelector('.delete-btn');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Remove Member';
+        deleteBtn.disabled = false;
+    }
+}
+
+function renderMembers() {
+    const membersGrid = document.getElementById('membersGrid');
+    const emptyState = document.getElementById('emptyState');
+    
+    if (!membersGrid || !emptyState) return;
+    
+    if (membersData.length === 0) {
+        membersGrid.style.display = 'none';
+        emptyState.style.display = 'block';
+        return;
+    }
+    
+    membersGrid.style.display = 'grid';
+    emptyState.style.display = 'none';
+    
+    membersGrid.innerHTML = membersData.map(member => `
+        <div class="member-card">
+            <div class="member-avatar">
+                <span class="avatar-letter">${member.avatar}</span>
+            </div>
+            <div class="member-info">
+                <h3 class="member-name">${member.name}</h3>
+                <p class="member-role">${capitalizeFirst(member.role)}</p>
+                <p class="member-deposit">Initial: ৳${member.deposit.toLocaleString()}</p>
+                <p class="member-joined">Joined: ${formatDisplayDate(member.joinDate)}</p>
+            </div>
+            <div class="member-actions">
+                <button class="action-btn edit" onclick="editMember('${member.id}')" title="Edit Member">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-btn delete" onclick="removeMember('${member.id}')" title="Remove Member">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Modal Functions
+function openAddMemberModal() {
+    const modal = document.getElementById('addMemberModal');
+    if (modal) {
+        modal.classList.add('active');
+        // Focus on first input
+        setTimeout(() => {
+            document.getElementById('memberName')?.focus();
+        }, 100);
+    }
+}
+
+function closeAddMemberModal() {
+    const modal = document.getElementById('addMemberModal');
+    if (modal) {
+        modal.classList.remove('active');
+        clearFormErrors();
+    }
+}
+
+function removeMember(memberId) {
+    const member = membersData.find(m => m.id === memberId);
+    if (!member) return;
+    
+    currentMemberToRemove = memberId;
+    
+    // Update modal with member name
+    const memberToRemoveElement = document.getElementById('memberToRemove');
+    if (memberToRemoveElement) {
+        memberToRemoveElement.textContent = member.name;
+    }
+    
+    // Open remove modal
+    const modal = document.getElementById('removeMemberModal');
+    if (modal) {
+        modal.classList.add('active');
+        // Focus on password input
+        setTimeout(() => {
+            document.getElementById('confirmPassword')?.focus();
+        }, 100);
+    }
+}
+
+function closeRemoveMemberModal() {
+    const modal = document.getElementById('removeMemberModal');
+    if (modal) {
+        modal.classList.remove('active');
+        document.getElementById('confirmPassword').value = '';
+        clearFormErrors();
+    }
+    currentMemberToRemove = null;
+}
+
+function editMember(memberId) {
+    // For now, just show an alert. In a real app, this would open an edit modal
+    const member = membersData.find(m => m.id === memberId);
+    if (member) {
+        alert(`Edit functionality for ${member.name} will be implemented soon!`);
+    }
+}
+
+// Utility Functions
+function generateMemberId(name) {
+    return name.toLowerCase().replace(/\s+/g, '-') + '-' + Date.now();
+}
+
+function generateAvatar(name) {
+    const words = name.trim().split(' ');
+    if (words.length >= 2) {
+        return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+    }
+    return name.charAt(0).toUpperCase() + (name.charAt(1) || '').toUpperCase();
+}
+
+function capitalizeFirst(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function formatDisplayDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+
+function showFormError(elementId, message) {
+    const errorElement = document.getElementById(elementId);
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.add('show');
+    }
+}
+
+function clearFormErrors() {
+    const errorElements = document.querySelectorAll('.error-message');
+    errorElements.forEach(element => {
+        element.textContent = '';
+        element.classList.remove('show');
+    });
+}
+
+function showSuccessMessage(message) {
+    // Create a temporary success notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        z-index: 1001;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease;
+    `;
+    
+    notification.innerHTML = `
+        <i class="fas fa-check-circle"></i>
+        ${message}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 3000);
+}
+
+// Add CSS animations for notifications
+if (!document.querySelector('#member-notification-styles')) {
+    const style = document.createElement('style');
+    style.id = 'member-notification-styles';
+    style.textContent = `
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Close modals when clicking outside
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('modal-overlay')) {
+        if (e.target.id === 'addMemberModal') {
+            closeAddMemberModal();
+        } else if (e.target.id === 'removeMemberModal') {
+            closeRemoveMemberModal();
+        }
+    }
+});

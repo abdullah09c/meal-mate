@@ -19,17 +19,15 @@ class MealMateProfile {
 
     async loadUserData() {
         try {
-            // Try to get user data from session/localStorage first
-            const userData = localStorage.getItem('currentUser');
-            if (userData) {
-                this.user = JSON.parse(userData);
-                return;
-            }
-
-            // If no local data, fetch from server
-            const response = await fetch('/api/user-profile');
+            // Get userId from URL or default to 1 for demo
+            const urlParams = new URLSearchParams(window.location.search);
+            const userId = urlParams.get('userId') || 1;
+            
+            // Fetch from server with userId
+            const response = await fetch(`/api/user-profile?userId=${userId}`);
             if (response.ok) {
                 this.user = await response.json();
+                this.user.userId = userId; // Store userId for later use
                 localStorage.setItem('currentUser', JSON.stringify(this.user));
             } else if (response.status === 401) {
                 // User not authenticated, redirect to login
@@ -42,11 +40,13 @@ class MealMateProfile {
             // Use default user data for demo
             this.user = {
                 id: 1,
+                userId: 1,
                 fullname: 'Test User',
                 email: 'test@example.com',
                 phone: '+1234567890',
                 created_at: '2024-01-15T10:30:00Z'
             };
+            this.showError('Failed to load user data from database. Using demo data.');
         }
     }
 
@@ -54,20 +54,17 @@ class MealMateProfile {
         if (!this.user) return;
 
         // Update header user info
-        const welcomeUser = document.querySelector('.welcome-user');
-        const userAvatar = document.querySelector('.user-avatar');
+        const userNameElement = document.querySelector('.user-name');
+        const avatarLetterElement = document.querySelector('.avatar-letter');
         
-        if (welcomeUser) {
-            welcomeUser.textContent = this.user.fullname || 'User';
+        if (userNameElement) {
+            userNameElement.textContent = this.user.fullname || 'User';
         }
 
         // Update user avatar with first letter
-        if (userAvatar && this.user.fullname) {
+        if (avatarLetterElement && this.user.fullname) {
             const firstLetter = this.user.fullname.charAt(0).toUpperCase();
-            userAvatar.innerHTML = firstLetter;
-            userAvatar.style.background = 'linear-gradient(135deg, #0db10a, #28a745)';
-            userAvatar.style.color = 'white';
-            userAvatar.style.fontWeight = '600';
+            avatarLetterElement.textContent = firstLetter;
         }
 
         // Update profile header
@@ -80,7 +77,7 @@ class MealMateProfile {
         
         if (profileAvatarLarge && this.user.fullname) {
             const firstLetter = this.user.fullname.charAt(0).toUpperCase();
-            profileAvatarLarge.innerHTML = firstLetter;
+            profileAvatarLarge.innerHTML = `<span style="font-size: 2rem; font-weight: bold; color: white;">${firstLetter}</span>`;
         }
 
         // Update personal information section
@@ -90,6 +87,7 @@ class MealMateProfile {
     updatePersonalInfo() {
         const elements = {
             '.user-fullname': this.user.fullname || 'Not provided',
+            '.user-username': this.user.username || 'Not provided',
             '.user-email': this.user.email || 'Not provided',
             '.user-phone': this.user.phone || 'Not provided',
             '.user-since': this.formatDate(this.user.created_at)
@@ -103,10 +101,12 @@ class MealMateProfile {
 
     async loadUserStats() {
         try {
+            const userId = this.user.userId || this.user.id || 1;
+            
             // Load various stats from API
             const [mealsResponse, depositsResponse] = await Promise.all([
-                fetch('/api/user-meals-count'),
-                fetch('/api/user-deposits-total')
+                fetch(`/api/user-meals-count?userId=${userId}`),
+                fetch(`/api/user-deposits-total?userId=${userId}`)
             ]);
 
             let totalMeals = 0, totalDeposits = 0, daysActive = 0, avgDailyCost = 0;
@@ -126,6 +126,7 @@ class MealMateProfile {
                 const createdDate = new Date(this.user.created_at);
                 const today = new Date();
                 daysActive = Math.floor((today - createdDate) / (1000 * 60 * 60 * 24));
+                if (daysActive < 1) daysActive = 1; // At least 1 day
             }
 
             // Calculate average daily cost
@@ -150,6 +151,7 @@ class MealMateProfile {
                 daysActive: 30,
                 avgDailyCost: 133
             });
+            this.showError('Failed to load user statistics from database.');
         }
     }
 
@@ -231,6 +233,7 @@ class MealMateProfile {
         const form = document.getElementById('editProfileForm');
         if (form && this.user) {
             form.editFullName.value = this.user.fullname || '';
+            form.editUsername.value = this.user.username || '';
             form.editEmail.value = this.user.email || '';
             form.editPhone.value = this.user.phone || '';
         }
@@ -255,6 +258,7 @@ class MealMateProfile {
         
         const updatedData = {
             fullname: formData.get('fullName'),
+            username: formData.get('username'),
             email: formData.get('email'),
             phone: formData.get('phone')
         };

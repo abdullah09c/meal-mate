@@ -62,7 +62,7 @@
                                     <i class="fas fa-chevron-down"></i>
                                 </button>
                                 <div class="dropdown-menu">
-                                    <a href="profile.html" class="dropdown-item">
+                                    <a href="profile.html?userId=1" class="dropdown-item">
                                         <i class="fas fa-user"></i>
                                         <span>Profile</span>
                                     </a>
@@ -156,6 +156,10 @@
                             <div class="info-group">
                                 <label>Full Name</label>
                                 <span class="info-value user-fullname">Loading...</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Username</label>
+                                <span class="info-value user-username">Loading...</span>
                             </div>
                             <div class="info-group">
                                 <label>Email</label>
@@ -264,6 +268,10 @@
                 <div class="form-group">
                     <label for="editFullName">Full Name</label>
                     <input type="text" id="editFullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername" name="username" required>
                 </div>
                 <div class="form-group">
                     <label for="editEmail">Email</label>

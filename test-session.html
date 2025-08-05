@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test User Session</title>
+</head>
+<body>
+    <h1>Test User Session Management</h1>
+    
+    <div>
+        <h3>Simulate Login for Different Users:</h3>
+        <button onclick="loginAsUser(7, 'Test Complete User', 'testcomplete2')">Login as User 7 (Test Complete User)</button><br><br>
+        <button onclick="loginAsUser(9, 'Test Login User', 'testlogin')">Login as User 9 (Test Login User)</button><br><br>
+        <button onclick="loginAsUser(5, 'abcd', 'abcd')">Login as User 5 (abcd)</button><br><br>
+    </div>
+    
+    <div>
+        <h3>Navigation Test:</h3>
+        <a href="/dashboard" id="dashboardLink">Go to Dashboard</a><br><br>
+        <a href="/profile" id="profileLink">Go to Profile</a><br><br>
+        <a href="/members" id="membersLink">Go to Members</a><br><br>
+    </div>
+    
+    <div>
+        <h3>Current User Info:</h3>
+        <p id="currentUserInfo">No user logged in</p>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        function loginAsUser(userId, fullName, username) {
+            const userData = {
+                id: userId,
+                fullName: fullName,
+                username: username,
+                email: `${username}@example.com`
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            updateLinks();
+            showCurrentUser();
+            alert(`Logged in as ${fullName} (ID: ${userId})`);
+        }
+        
+        function updateLinks() {
+            const userId = getCurrentUserId();
+            document.getElementById('dashboardLink').href = `/dashboard?userId=${userId}`;
+            document.getElementById('profileLink').href = `/profile?userId=${userId}`;
+            document.getElementById('membersLink').href = `/members?userId=${userId}`;
+        }
+        
+        function getCurrentUserId() {
+            const currentUser = localStorage.getItem('currentUser');
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    return user.id || 1;
+                } catch (e) {
+                    return 1;
+                }
+            }
+            return 1;
+        }
+        
+        function showCurrentUser() {
+            const currentUser = localStorage.getItem('currentUser');
+            const infoElement = document.getElementById('currentUserInfo');
+            
+            if (currentUser) {
+                try {
+                    const user = JSON.parse(currentUser);
+                    infoElement.innerHTML = `
+                        <strong>ID:</strong> ${user.id}<br>
+                        <strong>Name:</strong> ${user.fullName}<br>
+                        <strong>Username:</strong> ${user.username}<br>
+                        <strong>Email:</strong> ${user.email}
+                    `;
+                } catch (e) {
+                    infoElement.textContent = 'Error parsing user data';
+                }
+            } else {
+                infoElement.textContent = 'No user logged in';
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('currentUser');
+            showCurrentUser();
+            updateLinks();
+            alert('Logged out successfully');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLinks();
+            showCurrentUser();
+        });
+    </script>
+</body>
+</html>

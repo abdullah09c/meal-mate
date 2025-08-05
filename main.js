@@ -14,6 +14,66 @@ function togglePassword(inputId, eyeIcon) {
   }
 }
 
+// Function to get current user ID (from URL params, localStorage, or default)
+function getCurrentUserId() {
+  // First try to get from URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const userIdFromUrl = urlParams.get('userId');
+  
+  if (userIdFromUrl) {
+    return userIdFromUrl;
+  }
+  
+  // Try to get from localStorage
+  const currentUser = localStorage.getItem('currentUser');
+  if (currentUser) {
+    try {
+      const user = JSON.parse(currentUser);
+      return user.id || user.userId || 1;
+    } catch (e) {
+      console.warn('Error parsing current user from localStorage:', e);
+    }
+  }
+  
+  // Default to user ID 1
+  return 1;
+}
+
+// Function to update all profile links with current user ID
+function updateProfileLinks() {
+  const userId = getCurrentUserId();
+  const profileLinks = document.querySelectorAll('a[href*="profile.html"]');
+  
+  profileLinks.forEach(link => {
+    const url = new URL(link.href, window.location.origin);
+    url.searchParams.set('userId', userId);
+    link.href = url.toString();
+  });
+}
+
+// Function to update all navigation links with current user ID
+function updateNavigationLinks() {
+  const userId = getCurrentUserId();
+  
+  // List of pages that should include userId
+  const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html'];
+  
+  // Update all navigation links
+  const navLinks = document.querySelectorAll('a[href]');
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    
+    // Check if it's one of our pages that needs userId
+    pagesWithUserId.forEach(page => {
+      if (href === page || href.includes(page)) {
+        const url = new URL(link.href, window.location.origin);
+        url.searchParams.set('userId', userId);
+        link.href = url.toString();
+      }
+    });
+  });
+}
+
 // Common error handling functions
 function showError(element, message) {
   element.textContent = message;
@@ -29,6 +89,11 @@ function hideError(element) {
 
 // Initialize page-specific functionality
 document.addEventListener('DOMContentLoaded', function() {
+  // Update profile links with current user ID
+  updateProfileLinks();
+  // Update all navigation links with current user ID
+  updateNavigationLinks();
+  
   // Check if this is the signup page
   const signupForm = document.getElementById('sign-up-form');
   if (signupForm) {
@@ -134,10 +199,17 @@ function initializeSignupPage() {
       
       if (result.success) {
         alert('Account created successfully! Welcome to MealMate.');
-        form.reset();
-        hideError(passwordError);
-        hideError(confirmPasswordError);
-        submitButton.disabled = !termsCheckbox.checked;
+        // Create user object for localStorage
+        const newUser = {
+          id: result.userId,
+          fullName: formData.fullName,
+          username: formData.username,
+          email: formData.email
+        };
+        localStorage.setItem('currentUser', JSON.stringify(newUser));
+        
+        // Redirect to dashboard with userId
+        window.location.href = `/dashboard?userId=${result.userId}`;
       } else {
         alert(`Error: ${result.message}`);
       }
@@ -213,10 +285,12 @@ function initializeLoginPage() {
       const result = await response.json();
       
       if (result.success) {
+        // Store user data in localStorage for session management
+        localStorage.setItem('currentUser', JSON.stringify(result.user));
+        
         alert('Login successful! Welcome to MealMate.');
-        // Redirect to dashboard with user info
-        const userName = result.user.fullName || result.user.username;
-        window.location.href = `/dashboard?user=${encodeURIComponent(userName)}`;
+        // Redirect to dashboard with userId
+        window.location.href = `/dashboard?userId=${result.user.id}`;
       } else {
         if (result.field === 'identifier') {
           showError(identifierError, result.message);
@@ -318,4 +392,60 @@ function initializeForgotPasswordPage() {
       submitButton.textContent = 'Send Reset Instructions';
     }
   });
+}
+
+// Logout function
+function logout() {
+  // Clear user data from localStorage
+  localStorage.removeItem('currentUser');
+  
+  // Redirect to login page
+  window.location.href = '/login';
+}
+
+// Global function to handle logout button clicks
+document.addEventListener('DOMContentLoaded', function() {
+  // Find all logout buttons and add click handlers
+  const logoutButtons = document.querySelectorAll('.logout-btn');
+  logoutButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (confirm('Are you sure you want to logout?')) {
+        logout();
+      }
+    });
+  });
+  
+  // Update user info in header if available
+  updateHeaderUserInfo();
+});
+
+// Function to update user info in header
+function updateHeaderUserInfo() {
+  const userId = getCurrentUserId();
+  const currentUser = localStorage.getItem('currentUser');
+  
+  if (currentUser) {
+    try {
+      const user = JSON.parse(currentUser);
+      
+      // Update user name in header
+      const userNameElement = document.querySelector('.user-name');
+      if (userNameElement) {
+        userNameElement.textContent = user.fullName || user.username || 'User';
+      }
+      
+      // Update user avatar letter
+      const avatarLetterElement = document.querySelector('.avatar-letter');
+      if (avatarLetterElement) {
+        const name = user.fullName || user.username || 'User';
+        if (name !== 'User') {
+          avatarLetterElement.textContent = name.charAt(0).toUpperCase();
+        }
+      }
+      
+    } catch (e) {
+      console.warn('Error parsing current user from localStorage:', e);
+    }
+  }
 }

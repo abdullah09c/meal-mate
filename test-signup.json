@@ -1,0 +1,8 @@
+{
+  "fullName": "Test Login User",
+  "email": "testlogin@example.com", 
+  "username": "testlogin",
+  "phone": "+1122334455",
+  "password": "password123",
+  "terms": true
+}
