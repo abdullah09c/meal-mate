@@ -33,10 +33,14 @@ db.connect((err) => {
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
+      full_name VARCHAR(100),
       email VARCHAR(255) UNIQUE NOT NULL,
       username VARCHAR(100) UNIQUE NOT NULL,
+      phone VARCHAR(20),
       password_hash VARCHAR(255) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      last_login TIMESTAMP NULL,
+      is_active BOOLEAN DEFAULT TRUE
     )
   `;
   
@@ -51,6 +55,10 @@ db.connect((err) => {
 
 // Routes
 app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/login', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
 
@@ -60,6 +68,14 @@ app.get('/signup', (req, res) => {
 
 app.get('/forgot-password', (req, res) => {
   res.sendFile(path.join(__dirname, 'forgot-password.html'));
+});
+
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile.html'));
 });
 
 // Login route
@@ -108,12 +124,20 @@ app.post('/login', async (req, res) => {
         });
       }
       
-      // Login successful
+      // Login successful - update last_login timestamp
+      const updateLoginQuery = 'UPDATE users SET last_login = NOW() WHERE id = ?';
+      db.query(updateLoginQuery, [user.id], (updateErr) => {
+        if (updateErr) {
+          console.error('Error updating last_login:', updateErr);
+        }
+      });
+      
       res.json({ 
         success: true, 
         message: 'Login successful!',
         user: {
           id: user.id,
+          fullName: user.full_name,
           username: user.username,
           email: user.email
         }

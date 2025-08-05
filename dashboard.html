@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MealMate - Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container dashboard-container">
+        <div class="logo">
+            <h1>🍽️ MealMate</h1>
+            <p>Welcome to your meal management dashboard</p>
+        </div>
+        
+        <div class="welcome-message">
+            <h2>Welcome back!</h2>
+            <p>You have successfully logged into MealMate.</p>
+        </div>
+        
+        <div class="dashboard-features">
+            <div class="feature-card">
+                <i class="fas fa-utensils"></i>
+                <h3>Meal Planning</h3>
+                <p>Plan and track your daily meals</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-shopping-cart"></i>
+                <h3>Expense Tracking</h3>
+                <p>Monitor your food expenses and budget</p>
+            </div>
+            
+            <div class="feature-card">
+                <i class="fas fa-chart-bar"></i>
+                <h3>Reports</h3>
+                <p>View detailed reports and analytics</p>
+            </div>
+        </div>
+        
+        <div class="dashboard-actions">
+            <button class="btn-primary" onclick="window.location.href='/profile'">
+                <i class="fas fa-user"></i> View Profile
+            </button>
+            <button class="btn-secondary" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+        
+        <div class="copyright">
+            <p>&copy; 2025 Abdullah Al Fuwad. All rights reserved.</p>
+        </div>
+    </div>
+    
+    <script>
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/';
+            }
+        }
+        
+        // Display user info if available
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userName = urlParams.get('user');
+            if (userName) {
+                document.querySelector('.welcome-message h2').textContent = `Welcome back, ${userName}!`;
+            }
+        });
+    </script>
+</body>
+</html>

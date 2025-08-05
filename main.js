@@ -213,8 +213,9 @@ function initializeLoginPage() {
       
       if (result.success) {
         alert('Login successful! Welcome to MealMate.');
-        // Redirect to dashboard or home page
-        window.location.href = '/dashboard.html';
+        // Redirect to dashboard with user info
+        const userName = result.user.fullName || result.user.username;
+        window.location.href = `/dashboard?user=${encodeURIComponent(userName)}`;
       } else {
         if (result.field === 'identifier') {
           showError(identifierError, result.message);
