@@ -2353,7 +2353,7 @@ body:has(.modern-dashboard) {
 .members-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 2rem;
     background: white;
     padding: 2rem;
@@ -2409,6 +2409,7 @@ body:has(.modern-dashboard) {
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     width: fit-content;
+    margin: 0 auto;
 }
 
 .add-member-btn:hover {
@@ -2869,7 +2870,7 @@ body.modal-open {
 
 .deposits-header {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     margin-bottom: 2rem;
     background: #ffffff;
@@ -2922,6 +2923,7 @@ body.modal-open {
     gap: 0.5rem;
     box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);
     width: fit-content;
+    margin: 0 auto;
 }
 
 .add-deposit-btn:hover {
@@ -3291,10 +3293,10 @@ body.modal-open {
     flex-wrap: wrap;
     gap: 1rem;
 }
-
+/* 
 .header-content {
     flex: 1;
-}
+} */
 
 .section-title {
     font-size: 1.75rem;
