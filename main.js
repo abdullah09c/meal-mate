@@ -56,7 +56,7 @@ function updateNavigationLinks() {
   const userId = getCurrentUserId();
   
   // List of pages that should include userId
-  const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html'];
+  const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html'];
   
   // Update all navigation links
   const navLinks = document.querySelectorAll('a[href]');

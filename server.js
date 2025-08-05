@@ -877,6 +877,214 @@ app.delete('/api/members/:memberId', async (req, res) => {
   }
 });
 
+// Deposit Management API Endpoints
+
+// Get all deposits
+app.get('/api/deposits', (req, res) => {
+  const query = `
+    SELECT d.*, m.name as member_name 
+    FROM deposits d 
+    LEFT JOIN members m ON d.member_id = m.id 
+    ORDER BY d.deposit_date DESC, d.created_at DESC
+  `;
+  
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error('Error fetching deposits:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving deposits' 
+      });
+    }
+    
+    // Format the results
+    const deposits = results.map(deposit => ({
+      id: deposit.id,
+      amount: deposit.amount,
+      description: deposit.description,
+      date: deposit.deposit_date,
+      member_id: deposit.member_id,
+      member_name: deposit.member_name,
+      user_id: deposit.user_id,
+      created_at: deposit.created_at
+    }));
+    
+    res.json(deposits);
+  });
+});
+
+// Add new deposit
+app.post('/api/deposits', (req, res) => {
+  const { amount, date, description, member_id, user_id } = req.body;
+  
+  // Validate required fields
+  if (!amount || !date || !user_id) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Amount, date, and user ID are required' 
+    });
+  }
+  
+  if (amount <= 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Amount must be greater than 0' 
+    });
+  }
+  
+  const query = `
+    INSERT INTO deposits (user_id, member_id, amount, description, deposit_date) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  
+  db.query(query, [user_id, member_id || null, amount, description || null, date], (err, result) => {
+    if (err) {
+      console.error('Error adding deposit:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error adding deposit' 
+      });
+    }
+    
+    res.json({ 
+      success: true, 
+      message: 'Deposit added successfully',
+      depositId: result.insertId
+    });
+  });
+});
+
+// Update deposit
+app.put('/api/deposits/:id', (req, res) => {
+  const depositId = req.params.id;
+  const { amount, date, description, member_id } = req.body;
+  
+  // Validate required fields
+  if (!amount || !date) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Amount and date are required' 
+    });
+  }
+  
+  if (amount <= 0) {
+    return res.status(400).json({ 
+      success: false, 
+      message: 'Amount must be greater than 0' 
+    });
+  }
+  
+  // First check if deposit exists
+  const checkQuery = 'SELECT id FROM deposits WHERE id = ?';
+  db.query(checkQuery, [depositId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking deposit:', checkErr);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error updating deposit' 
+      });
+    }
+    
+    if (checkResults.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Deposit not found' 
+      });
+    }
+    
+    // Update the deposit
+    const updateQuery = `
+      UPDATE deposits 
+      SET amount = ?, deposit_date = ?, description = ?, member_id = ? 
+      WHERE id = ?
+    `;
+    
+    db.query(updateQuery, [amount, date, description || null, member_id || null, depositId], (updateErr) => {
+      if (updateErr) {
+        console.error('Error updating deposit:', updateErr);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error updating deposit' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Deposit updated successfully' 
+      });
+    });
+  });
+});
+
+// Delete deposit
+app.delete('/api/deposits/:id', (req, res) => {
+  const depositId = req.params.id;
+  
+  // First check if deposit exists
+  const checkQuery = 'SELECT id FROM deposits WHERE id = ?';
+  db.query(checkQuery, [depositId], (checkErr, checkResults) => {
+    if (checkErr) {
+      console.error('Error checking deposit:', checkErr);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error deleting deposit' 
+      });
+    }
+    
+    if (checkResults.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Deposit not found' 
+      });
+    }
+    
+    // Delete the deposit
+    const deleteQuery = 'DELETE FROM deposits WHERE id = ?';
+    db.query(deleteQuery, [depositId], (deleteErr) => {
+      if (deleteErr) {
+        console.error('Error deleting deposit:', deleteErr);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error deleting deposit' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Deposit deleted successfully' 
+      });
+    });
+  });
+});
+
+// Get user deposits summary
+app.get('/api/deposits/user/:userId/summary', (req, res) => {
+  const userId = req.params.userId;
+  
+  const query = `
+    SELECT 
+      COALESCE(SUM(amount), 0) as total_balance,
+      COALESCE(SUM(CASE WHEN MONTH(deposit_date) = MONTH(CURRENT_DATE()) AND YEAR(deposit_date) = YEAR(CURRENT_DATE()) THEN amount ELSE 0 END), 0) as this_month,
+      COALESCE(MAX(amount), 0) as last_deposit,
+      COALESCE(AVG(amount), 0) as average_deposit,
+      COUNT(*) as total_deposits
+    FROM deposits 
+    WHERE user_id = ?
+  `;
+  
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Error fetching deposit summary:', err);
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Error retrieving deposit summary' 
+      });
+    }
+    
+    res.json(results[0]);
+  });
+});
+
 // Routes for new pages
 app.get('/reports', (req, res) => {
   res.sendFile(path.join(__dirname, 'reports.html'));
@@ -892,6 +1100,10 @@ app.get('/members', (req, res) => {
 
 app.get('/profile', (req, res) => {
   res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+app.get('/deposit', (req, res) => {
+  res.sendFile(path.join(__dirname, 'deposit.html'));
 });
 
 // Start server
