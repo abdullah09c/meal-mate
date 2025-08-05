@@ -1,0 +1,257 @@
+body {
+    font-family: Arial, sans-serif;
+    background-image: url('image.png');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-color: #f4f4f4; /* Fallback color */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, .9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+/* Logo styles for MealMate branding */
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo h1 {
+    color: #0db10a;
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.logo p {
+    color: #666;
+    margin: 5px 0 0 0;
+    font-size: 14px;
+}
+
+/* Legacy h1 support for pages without logo div */
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+    font-weight: bold;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+input:focus {
+    border-color: #0db10a;
+    outline: none;
+}
+
+.password-container {
+    position: relative;
+}
+
+.password-container input {
+    padding-right: 45px;
+}
+
+.eye-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    font-size: 18px;
+    color: #666;
+    user-select: none;
+}
+
+.eye-icon:hover {
+    color: #0db10a;
+}
+
+button {
+    width: 100%;
+    padding: 15px;
+    background-color: #0db10a;
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 20px;
+}
+
+button:hover {
+    background-color: #056703;
+}
+
+button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Checkbox styles for sign-up page */
+.checkbox-group {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    accent-color: #0db10a;
+}
+
+.checkbox-group input[type="checkbox"]:checked {
+    accent-color: #0db10a;
+}
+
+.checkbox-label {
+    font-weight: normal;
+    margin-bottom: 0;
+    font-size: 14px;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+.terms-link {
+    color: #0db10a;
+    text-decoration: none;
+}
+
+.terms-link:hover {
+    text-decoration: underline;
+}
+
+/* Auth links for navigation between login/signup */
+.auth-links {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.auth-links p {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.auth-link {
+    color: #0db10a;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.auth-link:hover {
+    text-decoration: underline;
+}
+
+/* Forgot password page specific styles */
+.forgot-password-info {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.forgot-password-info p {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Success message styles */
+.success-message {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 12px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 14px;
+    display: none;
+}
+
+.success-message.show {
+    display: block;
+}
+
+/* Error message styles */
+.error-message {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+    display: none;
+    font-weight: normal;
+}
+
+.error-message.show {
+    display: block;
+}
+
+.form-group.error input {
+    border-color: #dc3545;
+}
+
+/* Copyright styles */
+.copyright {
+    margin-top: 20px;
+    text-align: center;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.copyright p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+    .container {
+        padding: 20px;
+        width: 80%;
+    }
+    
+    .logo h1 {
+        font-size: 24px;
+    }
+}
