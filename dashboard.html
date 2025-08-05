@@ -4,70 +4,201 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MealMate - Dashboard</title>
+    <!-- Keep existing styles for compatibility -->
     <link rel="stylesheet" href="styles.css">
+    <!-- Add new dashboard styles -->
+    <link rel="stylesheet" href="dashboard-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container dashboard-container">
-        <div class="logo">
-            <h1>🍽️ MealMate</h1>
-            <p>Welcome to your meal management dashboard</p>
-        </div>
-        
-        <div class="welcome-message">
-            <h2>Welcome back!</h2>
-            <p>You have successfully logged into MealMate.</p>
-        </div>
-        
-        <div class="dashboard-features">
-            <div class="feature-card">
-                <i class="fas fa-utensils"></i>
-                <h3>Meal Planning</h3>
-                <p>Plan and track your daily meals</p>
+    <div class="modern-dashboard">
+        <!-- Header -->
+        <header class="modern-header">
+            <div class="header-container">
+                <div class="header-left">
+                    <div class="brand-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1>MealMate</h1>
+                            <span>Dashboard</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-center">
+                    <nav class="main-nav">
+                        <a href="dashboard.html" class="nav-item active">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="/reports" class="nav-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Reports</span>
+                        </a>
+                        <a href="/bazar" class="nav-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Bazar</span>
+                        </a>
+                        <a href="/members" class="nav-item">
+                            <i class="fas fa-users"></i>
+                            <span>Members</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-profile">
+                        <div class="user-avatar-modern">
+                            <span class="avatar-letter">U</span>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name">User</span>
+                            <span class="user-role">Member</span>
+                        </div>
+                        <div class="user-actions">
+                            <div class="dropdown">
+                                <button class="dropdown-toggle" aria-label="User menu">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="profile.html" class="dropdown-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                    <a href="/members" class="dropdown-item">
+                                        <i class="fas fa-users-cog"></i>
+                                        <span>Manage Members</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item logout-btn">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-            <div class="feature-card">
-                <i class="fas fa-shopping-cart"></i>
-                <h3>Expense Tracking</h3>
-                <p>Monitor your food expenses and budget</p>
-            </div>
-            
-            <div class="feature-card">
-                <i class="fas fa-chart-bar"></i>
-                <h3>Reports</h3>
-                <p>View detailed reports and analytics</p>
-            </div>
-        </div>
-        
-        <div class="dashboard-actions">
-            <button class="btn-primary" onclick="window.location.href='/profile'">
-                <i class="fas fa-user"></i> View Profile
-            </button>
-            <button class="btn-secondary" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </div>
-        
-        <div class="copyright">
-            <p>&copy; 2025 Abdullah Al Fuwad. All rights reserved.</p>
-        </div>
+        </header>
+
+        <!-- Main Dashboard Content -->
+        <main class="dashboard-main">
+            <!-- Stats Cards -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Today's Meal Rate</span>
+                        <div class="stat-icon today-meal">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value today-meal-value">৳0.00</div>
+                    <div class="stat-subtitle today-meal-subtitle">0 meals today</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        12% from yesterday
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Cost</span>
+                        <div class="stat-icon total-cost">
+                            <i class="fas fa-receipt"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value total-cost-value">৳0.00</div>
+                    <div class="stat-subtitle total-cost-subtitle">This month: ৳0.00</div>
+                    <div class="stat-change total-cost-change positive">
+                        <i class="fas fa-arrow-up"></i>
+                        8% from last month
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Deposit</span>
+                        <div class="stat-icon deposit">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value deposit-value">৳0.00</div>
+                    <div class="stat-subtitle deposit-subtitle">Available balance</div>
+                    <div class="stat-change deposit-change positive">
+                        <i class="fas fa-plus"></i>
+                        Last deposit: ৳500
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-title">Total Meals</span>
+                        <div class="stat-icon meal-count">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value meal-count-value">0</div>
+                    <div class="stat-subtitle meal-count-subtitle">This month: 0 meals</div>
+                    <div class="stat-change meal-count-change positive">
+                        <i class="fas fa-chart-line"></i>
+                        Avg: 2.5 meals/day
+                    </div>
+                </div>
+            </section>
+
+            <!-- Feature Cards -->
+            <section class="features-section">
+                <h2 class="section-title">
+                    <i class="fas fa-grid-horizontal"></i>
+                    Quick Access
+                </h2>
+                <div class="features-grid">
+                    <a href="/reports" class="feature-card" data-target="/reports">
+                        <div class="feature-icon reports">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3>Reports & Analytics</h3>
+                        <p>View detailed reports of your meal expenses, patterns, and financial insights.</p>
+                        <div class="feature-action">
+                            <span>View Reports</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/bazar" class="feature-card" data-target="/bazar">
+                        <div class="feature-icon bazar">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <h3>Bazar Management</h3>
+                        <p>Track your grocery shopping, manage shopping lists, and monitor market expenses.</p>
+                        <div class="feature-action">
+                            <span>Manage Bazar</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                    <a href="/members" class="feature-card" data-target="/members">
+                        <div class="feature-icon members">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h3>Manage Members</h3>
+                        <p>Add, edit, and manage family members or group participants in your meal planning.</p>
+                        <div class="feature-action">
+                            <span>Manage Members</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </a>
+                </div>
+            </section>
+        </main>
     </div>
-    
-    <script>
-        function logout() {
-            if (confirm('Are you sure you want to logout?')) {
-                window.location.href = '/';
-            }
-        }
-        
-        // Display user info if available
-        document.addEventListener('DOMContentLoaded', function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userName = urlParams.get('user');
-            if (userName) {
-                document.querySelector('.welcome-message h2').textContent = `Welcome back, ${userName}!`;
-            }
-        });
-    </script>
+
+    <!-- Keep existing main.js for compatibility -->
+    <script src="main.js"></script>
+    <!-- Add new dashboard functionality -->
+    <script src="dashboard.js"></script>
 </body>
 </html>

@@ -3,29 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MealMate - User Profile</title>
+    <title>MealMate - Profile</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="profile-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <h1>🍽️ MealMate</h1>
-            <p>Your Profile Information</p>
-        </div>
-        
-        <div class="profile-info">
-            <h2>Profile Information</h2>
-            <p>This feature will be available soon. You can view and edit your profile details here.</p>
-        </div>
-        
-        <div class="auth-links">
-            <p><a href="/dashboard" class="auth-link">← Back to Dashboard</a></p>
-        </div>
-        
-        <div class="copyright">
-            <p>&copy; 2025 Abdullah Al Fuwad. All rights reserved.</p>
+    <div class="modern-dashboard">
+        <!-- Header -->
+        <header class="modern-header">
+            <div class="header-container">
+                <div class="header-left">
+                    <div class="brand-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1>MealMate</h1>
+                            <span>Profile</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-center">
+                    <nav class="main-nav">
+                        <a href="dashboard.html" class="nav-item">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="/reports" class="nav-item">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Reports</span>
+                        </a>
+                        <a href="/bazar" class="nav-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Bazar</span>
+                        </a>
+                        <a href="/members" class="nav-item">
+                            <i class="fas fa-users"></i>
+                            <span>Members</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-profile">
+                        <div class="user-avatar-modern">
+                            <span class="avatar-letter">U</span>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name">User</span>
+                            <span class="user-role">Member</span>
+                        </div>
+                        <div class="user-actions">
+                            <div class="dropdown">
+                                <button class="dropdown-toggle" aria-label="User menu">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="profile.html" class="dropdown-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                    <a href="/members" class="dropdown-item">
+                                        <i class="fas fa-users-cog"></i>
+                                        <span>Manage Members</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item logout-btn">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Profile Content -->
+        <main class="profile-main">
+            <div class="profile-container">
+                <!-- Profile Header -->
+                <div class="profile-header">
+                    <div class="profile-avatar-large">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="profile-info">
+                        <h1 class="profile-name">User Name</h1>
+                        <p class="profile-email">user@example.com</p>
+                        <div class="profile-badges">
+                            <span class="badge active">Active Member</span>
+                            <span class="badge joined">Joined 2024</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Stats -->
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number total-meals-taken">0</h3>
+                            <p class="stat-label">Total Meals</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number total-deposits">৳0</h3>
+                            <p class="stat-label">Total Deposits</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number days-active">0</h3>
+                            <p class="stat-label">Days Active</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3 class="stat-number avg-daily-cost">৳0</h3>
+                            <p class="stat-label">Avg Daily Cost</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Details Cards -->
+                <div class="profile-cards">
+                    <!-- Personal Information -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-user-circle"></i> Personal Information</h3>
+                            <button class="edit-btn" data-section="personal">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <div class="info-group">
+                                <label>Full Name</label>
+                                <span class="info-value user-fullname">Loading...</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Email</label>
+                                <span class="info-value user-email">Loading...</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Phone</label>
+                                <span class="info-value user-phone">Not provided</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Member Since</label>
+                                <span class="info-value user-since">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Account Settings -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-cog"></i> Account Settings</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Change Password</label>
+                                    <p>Update your password to keep your account secure</p>
+                                </div>
+                                <button class="setting-btn" data-action="change-password">
+                                    <i class="fas fa-key"></i>
+                                    Change
+                                </button>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Email Notifications</label>
+                                    <p>Receive updates about your meal activities</p>
+                                </div>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="email-notifications" checked>
+                                    <label for="email-notifications"></label>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Privacy Settings</label>
+                                    <p>Manage your privacy and data preferences</p>
+                                </div>
+                                <button class="setting-btn" data-action="privacy">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Manage
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="activity-list">
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p>Added today's meal</p>
+                                        <span class="activity-time">2 hours ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p>Made a deposit of ৳500</p>
+                                        <span class="activity-time">1 day ago</span>
+                                    </div>
+                                </div>
+                                <div class="activity-item">
+                                    <div class="activity-icon">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div class="activity-details">
+                                        <p>Viewed monthly report</p>
+                                        <span class="activity-time">3 days ago</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="editProfileForm" class="modal-body">
+                <div class="form-group">
+                    <label for="editFullName">Full Name</label>
+                    <input type="text" id="editFullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPhone">Phone</label>
+                    <input type="tel" id="editPhone" name="phone">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="save-btn">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
+
+    <!-- Change Password Modal -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Change Password</h3>
+                <span class="close">&times;</span>
+            </div>
+            <form id="changePasswordForm" class="modal-body">
+                <div class="form-group">
+                    <label for="currentPassword">Current Password</label>
+                    <input type="password" id="currentPassword" name="currentPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" name="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm New Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="cancel-btn">Cancel</button>
+                    <button type="submit" class="save-btn">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script src="profile.js"></script>
 </body>
 </html>

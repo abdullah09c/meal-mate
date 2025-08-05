@@ -8,39 +8,45 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="main.js"></script>
 </head>
-<body>
+<body class="auth-page">
     <div class="container">
         <div class="logo">
-            <h1>🍽️ MealMate</h1>
-            <p>Manage your meals, track expenses</p>
+            <div class="logo-icon">
+                <i class="fas fa-utensils"></i>
+            </div>
+            <h1>MealMate</h1>
+            <p>Sign in to your account</p>
         </div>
         
         <form action="/login" method="post" id="login-form">
             <div class="form-group">
-                <label for="login-identifier">Email or Username:</label>
+                <label for="login-identifier">Email or Username</label>
                 <input type="text" id="login-identifier" name="identifier" required>
                 <div class="error-message" id="identifier-error"></div>
             </div>
             
             <div class="form-group">
-                <label for="login-password">Password:</label>
+                <label for="login-password">Password</label>
                 <div class="password-container">
                     <input type="password" id="login-password" name="password" required>
-                    <span class="fa-solid fa-eye eye-icon" onclick="togglePassword('login-password', this)"></span>
+                    <span class="eye-icon" onclick="togglePassword('login-password', this)">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
                 <div class="error-message" id="password-error"></div>
             </div>
             
-            <button type="submit">Login</button>
-            
-            <div class="auth-links">
-                <p>Don't have an account? <a href="sign-up.html" class="auth-link">Sign Up</a></p>
-                <p><a href="forgot-password.html" class="auth-link">Forgot Password?</a></p>
-            </div>
+            <button type="submit">Sign In</button>
         </form>
         
+        <div class="auth-links">
+            <p><a href="forgot-password.html" class="auth-link">Forgot your password?</a></p>
+            <p>Don't have an account? <a href="sign-up.html" class="auth-link">Sign up here</a></p>
+            <p><a href="index.html" class="auth-link">← Back to Home</a></p>
+        </div>
+        
         <div class="copyright">
-            <p>&copy; 2025 Abdullah Al Fuwad. All rights reserved.</p>
+            <p>&copy; 2025 MealMate. All rights reserved. | Developed by Abdullah Al Fuwad</p>
         </div>
     </div>
 </body>

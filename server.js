@@ -294,6 +294,308 @@ app.post('/forgot-password', async (req, res) => {
   }
 });
 
+// Dashboard API routes
+app.get('/api/today-meal-rate', (req, res) => {
+  const userId = req.query.userId || 1;
+  const today = new Date().toISOString().split('T')[0];
+  
+  const query = `
+    SELECT 
+      COALESCE(SUM(breakfast_cost + lunch_cost + dinner_cost), 0) as rate,
+      COUNT(*) as mealCount
+    FROM meal_reports 
+    WHERE user_id = ? AND date = ?
+  `;
+  
+  db.query(query, [userId, today], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ rate: '0.00', mealCount: 0 });
+    }
+    
+    const result = results[0] || { rate: 0, mealCount: 0 };
+    res.json({
+      rate: parseFloat(result.rate).toFixed(2),
+      mealCount: result.mealCount
+    });
+  });
+});
+
+app.get('/api/total-cost', (req, res) => {
+  const userId = req.query.userId || 1;
+  const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
+  
+  const query = `
+    SELECT 
+      COALESCE(SUM(breakfast_cost + lunch_cost + dinner_cost), 0) as totalCost,
+      COALESCE(SUM(CASE 
+        WHEN DATE_FORMAT(date, '%Y-%m') = ? 
+        THEN breakfast_cost + lunch_cost + dinner_cost 
+        ELSE 0 END), 0) as monthlyTotal
+    FROM meal_reports 
+    WHERE user_id = ?
+  `;
+  
+  db.query(query, [currentMonth, userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ totalCost: '0.00', monthlyTotal: '0.00', change: 0 });
+    }
+    
+    const result = results[0] || { totalCost: 0, monthlyTotal: 0 };
+    res.json({
+      totalCost: parseFloat(result.totalCost).toFixed(2),
+      monthlyTotal: parseFloat(result.monthlyTotal).toFixed(2),
+      change: Math.floor(Math.random() * 20) - 10 // Mock change percentage
+    });
+  });
+});
+
+app.get('/api/total-deposit', (req, res) => {
+  const userId = req.query.userId || 1;
+  
+  const query = `
+    SELECT 
+      COALESCE(SUM(amount), 0) as totalDeposit,
+      (SELECT amount FROM deposits WHERE user_id = ? ORDER BY created_at DESC LIMIT 1) as lastDeposit
+    FROM deposits 
+    WHERE user_id = ?
+  `;
+  
+  db.query(query, [userId, userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ totalDeposit: '0.00', lastDeposit: '0.00' });
+    }
+    
+    const result = results[0] || { totalDeposit: 0, lastDeposit: 0 };
+    res.json({
+      totalDeposit: parseFloat(result.totalDeposit).toFixed(2),
+      lastDeposit: parseFloat(result.lastDeposit || 0).toFixed(2)
+    });
+  });
+});
+
+app.get('/api/total-meals', (req, res) => {
+  const userId = req.query.userId || 1;
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  
+  const query = `
+    SELECT 
+      COUNT(*) as totalMeals,
+      SUM(CASE 
+        WHEN DATE_FORMAT(date, '%Y-%m') = ? 
+        THEN 1 ELSE 0 END) as monthlyMeals
+    FROM meal_reports 
+    WHERE user_id = ? AND (breakfast_cost > 0 OR lunch_cost > 0 OR dinner_cost > 0)
+  `;
+  
+  db.query(query, [currentMonth, userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ totalMeals: 0, monthlyMeals: 0, avgPerDay: '0.0' });
+    }
+    
+    const result = results[0] || { totalMeals: 0, monthlyMeals: 0 };
+    const daysInMonth = new Date().getDate();
+    const avgPerDay = result.monthlyMeals > 0 ? (result.monthlyMeals / daysInMonth).toFixed(1) : '0.0';
+    
+    res.json({
+      totalMeals: result.totalMeals,
+      monthlyMeals: result.monthlyMeals,
+      avgPerDay: avgPerDay
+    });
+  });
+});
+
+// Profile API endpoints
+app.get('/api/user-profile', (req, res) => {
+  const userId = req.query.userId || 1; // In a real app, get from session
+  
+  const query = 'SELECT id, full_name as fullname, email, phone, created_at FROM users WHERE id = ?';
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Database error' });
+    }
+    
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(results[0]);
+  });
+});
+
+app.get('/api/user-meals-count', (req, res) => {
+  const userId = req.query.userId || 1;
+  
+  const query = `
+    SELECT COUNT(*) as total
+    FROM meal_reports 
+    WHERE user_id = ? AND (breakfast_cost > 0 OR lunch_cost > 0 OR dinner_cost > 0)
+  `;
+  
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ total: 0 });
+    }
+    
+    const result = results[0] || { total: 0 };
+    res.json({ total: result.total });
+  });
+});
+
+app.get('/api/user-deposits-total', (req, res) => {
+  const userId = req.query.userId || 1;
+  
+  const query = 'SELECT COALESCE(SUM(amount), 0) as total FROM deposits WHERE user_id = ?';
+  db.query(query, [userId], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.json({ total: 0 });
+    }
+    
+    const result = results[0] || { total: 0 };
+    res.json({ total: parseFloat(result.total) });
+  });
+});
+
+app.put('/api/update-profile', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1; // In a real app, get from session
+    const { fullname, email, phone } = req.body;
+    
+    // Validation
+    if (!fullname || !email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name and email are required' 
+      });
+    }
+    
+    // Check if email is already taken by another user
+    const checkEmailQuery = 'SELECT id FROM users WHERE email = ? AND id != ?';
+    db.query(checkEmailQuery, [email, userId], (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      
+      if (results.length > 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Email is already taken by another user' 
+        });
+      }
+      
+      // Update user profile
+      const updateQuery = 'UPDATE users SET full_name = ?, email = ?, phone = ? WHERE id = ?';
+      db.query(updateQuery, [fullname, email, phone, userId], (err, results) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Failed to update profile' });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Profile updated successfully' 
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.put('/api/change-password', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1; // In a real app, get from session
+    const { currentPassword, newPassword } = req.body;
+    
+    // Validation
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Current password and new password are required' 
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'New password must be at least 6 characters long' 
+      });
+    }
+    
+    // Get current user
+    const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    db.query(getUserQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Database error' });
+      }
+      
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const user = results[0];
+      
+      // Verify current password
+      const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!isCurrentPasswordValid) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Current password is incorrect' 
+        });
+      }
+      
+      // Hash new password
+      const saltRounds = 10;
+      const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+      
+      // Update password
+      const updateQuery = 'UPDATE users SET password_hash = ? WHERE id = ?';
+      db.query(updateQuery, [newPasswordHash, userId], (err, results) => {
+        if (err) {
+          console.error('Database error:', err);
+          return res.status(500).json({ message: 'Failed to change password' });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Password changed successfully' 
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Routes for new pages
+app.get('/reports', (req, res) => {
+  res.sendFile(path.join(__dirname, 'reports.html'));
+});
+
+app.get('/bazar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'bazar.html'));
+});
+
+app.get('/members', (req, res) => {
+  res.sendFile(path.join(__dirname, 'members.html'));
+});
+
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

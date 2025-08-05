@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MealMate - Reports & Analytics</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="modern-dashboard">
+        <header class="modern-header">
+            <div class="header-container">
+                <div class="header-left">
+                    <div class="brand-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-utensils"></i>
+                        </div>
+                        <div class="brand-text">
+                            <h1>MealMate</h1>
+                            <span>Reports</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-center">
+                    <nav class="main-nav">
+                        <a href="dashboard.html" class="nav-item">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                        <a href="/reports" class="nav-item active">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Reports</span>
+                        </a>
+                        <a href="/bazar" class="nav-item">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Bazar</span>
+                        </a>
+                        <a href="/members" class="nav-item">
+                            <i class="fas fa-users"></i>
+                            <span>Members</span>
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-profile">
+                        <div class="user-avatar-modern">
+                            <span class="avatar-letter">U</span>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name">User</span>
+                            <span class="user-role">Member</span>
+                        </div>
+                        <div class="user-actions">
+                            <div class="dropdown">
+                                <button class="dropdown-toggle" aria-label="User menu">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <div class="dropdown-menu">
+                                    <a href="profile.html" class="dropdown-item">
+                                        <i class="fas fa-user"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                    <a href="/members" class="dropdown-item">
+                                        <i class="fas fa-users-cog"></i>
+                                        <span>Manage Members</span>
+                                    </a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item logout-btn">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span>Logout</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-main">
+            <div style="text-align: center; padding: 4rem 2rem;">
+                <div class="feature-icon reports" style="margin: 0 auto 2rem; width: 100px; height: 100px; font-size: 3rem;">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h1 style="color: #1e293b; margin-bottom: 1rem;">Reports & Analytics</h1>
+                <p style="color: #64748b; font-size: 1.2rem; margin-bottom: 2rem;">
+                    Comprehensive meal expense reports and financial analytics coming soon!
+                </p>
+                <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08); margin-bottom: 2rem;">
+                    <h3 style="color: #1e293b; margin-bottom: 1rem;">Features in Development:</h3>
+                    <ul style="color: #64748b; text-align: left; max-width: 400px; margin: 0 auto;">
+                        <li>Monthly expense reports</li>
+                        <li>Daily meal cost tracking</li>
+                        <li>Budget vs actual spending analysis</li>
+                        <li>Member-wise expense breakdown</li>
+                        <li>Graphical charts and trends</li>
+                        <li>Export reports to PDF/Excel</li>
+                    </ul>
+                </div>
+                <a href="/dashboard" class="action-btn">
+                    <i class="fas fa-home"></i>
+                    Return to Dashboard
+                </a>
+            </div>
+        </main>
+    </div>
+    
+    <script src="main.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
