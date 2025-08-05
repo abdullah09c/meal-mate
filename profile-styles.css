@@ -195,6 +195,7 @@
     align-items: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
+    width: 25%;
 }
 
 .edit-btn:hover, .setting-btn:hover {

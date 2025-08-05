@@ -42,6 +42,10 @@ body:not(:has(.landing-page)):not(:has(.auth-page)):not(.auth-page) {
     max-width: 400px;
 }
 
+#sign-up-container {
+    margin: 50px 0;
+}
+
 /* Logo styles for MealMate branding */
 .logo {
     text-align: center;
