@@ -1,393 +1,422 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MealMate - Reports & Analytics</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard-styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dashboard-styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="modern-dashboard">
-        <header class="modern-header">
-            <div class="header-container">
-                <div class="header-left">
-                    <div class="brand-logo">
-                        <div class="logo-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <div class="brand-text">
-                            <h1>MealMate</h1>
-                            <span>Reports</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="header-center">
-                    <nav class="main-nav">
-                        <a href="dashboard.html" class="nav-item">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="reports.html" class="nav-item active">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Reports</span>
-                        </a>
-                        <a href="bazar.html" class="nav-item">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Bazar</span>
-                        </a>
-                        <a href="deposit.html" class="nav-item">
-                            <i class="fas fa-wallet"></i>
-                            <span>Deposits</span>
-                        </a>
-                        <a href="members.html" class="nav-item">
-                            <i class="fas fa-users"></i>
-                            <span>Members</span>
-                        </a>
-                    </nav>
-                </div>
-                
-                <div class="header-right">
-                    <div class="user-profile">
-                        <div class="user-avatar-modern">
-                            <span class="avatar-letter">U</span>
-                        </div>
-                        <div class="user-details">
-                            <span class="user-name">User</span>
-                            <span class="user-role">Member</span>
-                        </div>
-                        <div class="user-actions">
-                            <div class="dropdown">
-                                <button class="dropdown-toggle" aria-label="User menu">
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="profile.html?userId=1" class="dropdown-item">
-                                        <i class="fas fa-user"></i>
-                                        <span>Profile</span>
-                                    </a>
-                                    <a href="members.html" class="dropdown-item">
-                                        <i class="fas fa-users-cog"></i>
-                                        <span>Manage Members</span>
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item logout-btn">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                        <span>Logout</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <header class="modern-header">
+        <div class="header-container">
+          <div class="header-left">
+            <div class="brand-logo">
+              <div class="logo-icon">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <div class="brand-text">
+                <h1>MealMate</h1>
+                <span>Reports</span>
+              </div>
             </div>
-        </header>
+          </div>
 
-        <main class="dashboard-main">
-            <div class="reports-container">
-                <!-- Header Section -->
-                <div class="reports-header">
-                    <div class="header-content">
-                        <div class="feature-icon reports">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="header-text">
-                            <h1>Reports & Analytics</h1>
-                            <p>Comprehensive meal expense reports and financial insights</p>
-                        </div>
-                    </div>
-                    <div class="header-actions-group">
-                        <button class="action-btn primary" onclick="generateReport()">
-                            <i class="fas fa-chart-bar"></i>
-                            Generate Report
-                        </button>
-                        <button class="action-btn secondary" onclick="exportReport()" title="Export Report">
-                            <i class="fas fa-download"></i>
-                            Export
-                        </button>
-                        <button class="action-btn outline" onclick="refreshReports()" title="Refresh">
-                            <i class="fas fa-sync-alt"></i>
-                            Refresh
-                        </button>
-                    </div>
+          <div class="header-center">
+            <nav class="main-nav">
+              <a href="dashboard.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+              </a>
+              <a href="reports.html" class="nav-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Reports</span>
+              </a>
+              <a href="bazar.html" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Bazar</span>
+              </a>
+              <a href="deposit.html" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Deposits</span>
+              </a>
+              <a href="members.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Members</span>
+              </a>
+            </nav>
+          </div>
+
+          <div class="header-right">
+            <div class="user-profile">
+              <div class="user-avatar-modern">
+                <span class="avatar-letter">U</span>
+              </div>
+              <div class="user-details">
+                <span class="user-name">User</span>
+                <span class="user-role">Member</span>
+              </div>
+              <div class="user-actions">
+                <div class="dropdown">
+                  <button class="dropdown-toggle" aria-label="User menu">
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a href="profile.html?userId=1" class="dropdown-item">
+                      <i class="fas fa-user"></i>
+                      <span>Profile</span>
+                    </a>
+                    <a href="members.html" class="dropdown-item">
+                      <i class="fas fa-users-cog"></i>
+                      <span>Manage Members</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout-btn">
+                      <i class="fas fa-sign-out-alt"></i>
+                      <span>Logout</span>
+                    </button>
+                  </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
 
-                <!-- Breadcrumb Navigation -->
-                <nav class="breadcrumb-nav">
-                    <div class="breadcrumb-container">
-                        <div class="breadcrumb-items">
-                            <a href="dashboard.html" class="breadcrumb-item">
-                                <i class="fas fa-home"></i>
-                                <span>Dashboard</span>
-                            </a>
-                            <i class="fas fa-chevron-right breadcrumb-separator"></i>
-                            <span class="breadcrumb-item current">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Reports & Analytics</span>
-                            </span>
-                        </div>
-                        <div class="breadcrumb-meta">
-                            <span class="page-info">
-                                <i class="fas fa-clock"></i>
-                                Last updated: <span id="lastUpdated">Just now</span>
-                            </span>
-                        </div>
-                    </div>
-                </nav>
+      <main class="dashboard-main">
+        <div class="reports-container">
+          <!-- Header Section -->
+          <div class="reports-header">
+            <div class="header-content">
+              <div class="feature-icon reports">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="header-text">
+                <h1>Reports & Analytics</h1>
+                <p>Comprehensive meal expense reports and financial insights</p>
+              </div>
+            </div>
+          </div>
 
-                <!-- Quick Stats Overview -->
-                <div class="reports-overview">
-                    <div class="overview-card">
-                        <div class="overview-icon">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <div class="overview-details">
-                            <h3 class="overview-amount" id="totalExpenses">৳0</h3>
-                            <p class="overview-label">Total Expenses</p>
-                            <span class="overview-change positive" id="expenseChange">+0%</span>
-                        </div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-icon">
-                            <i class="fas fa-piggy-bank"></i>
-                        </div>
-                        <div class="overview-details">
-                            <h3 class="overview-amount" id="totalDeposits">৳0</h3>
-                            <p class="overview-label">Total Deposits</p>
-                            <span class="overview-change positive" id="depositChange">+0%</span>
-                        </div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-icon">
-                            <i class="fas fa-balance-scale"></i>
-                        </div>
-                        <div class="overview-details">
-                            <h3 class="overview-amount" id="currentBalance">৳0</h3>
-                            <p class="overview-label">Current Balance</p>
-                            <span class="overview-change" id="balanceStatus">Stable</span>
-                        </div>
-                    </div>
-                    <div class="overview-card">
-                        <div class="overview-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <div class="overview-details">
-                            <h3 class="overview-amount" id="avgDaily">৳0</h3>
-                            <p class="overview-label">Daily Average</p>
-                            <span class="overview-change" id="avgChange">This Month</span>
-                        </div>
-                    </div>
+          <!-- Breadcrumb Navigation -->
+          <nav class="breadcrumb-nav">
+            <div class="breadcrumb-container">
+              <div class="breadcrumb-items">
+                <a href="dashboard.html" class="breadcrumb-item">
+                  <i class="fas fa-home"></i>
+                  <span>Dashboard</span>
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="breadcrumb-item current">
+                  <i class="fas fa-chart-line"></i>
+                  <span>Reports & Analytics</span>
+                </span>
+              </div>
+              <div class="breadcrumb-meta">
+                <span class="page-info">
+                  <i class="fas fa-clock"></i>
+                  Last updated: <span id="lastUpdated">Just now</span>
+                </span>
+              </div>
+            </div>
+          </nav>
+
+          <!-- Quick Stats Overview -->
+          <div class="reports-overview">
+            <div class="overview-card">
+              <div class="overview-icon">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div class="overview-details">
+                <h3 class="overview-amount" id="totalExpenses">৳0</h3>
+                <p class="overview-label">Total Expenses</p>
+                <span class="overview-change positive" id="expenseChange"
+                  >+0%</span
+                >
+              </div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-icon">
+                <i class="fas fa-piggy-bank"></i>
+              </div>
+              <div class="overview-details">
+                <h3 class="overview-amount" id="totalDeposits">৳0</h3>
+                <p class="overview-label">Total Deposits</p>
+                <span class="overview-change positive" id="depositChange"
+                  >+0%</span
+                >
+              </div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="overview-details">
+                <h3 class="overview-amount" id="currentBalance">৳0</h3>
+                <p class="overview-label">Current Balance</p>
+                <span class="overview-change" id="balanceStatus">Stable</span>
+              </div>
+            </div>
+            <div class="overview-card">
+              <div class="overview-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="overview-details">
+                <h3 class="overview-amount" id="avgDaily">৳0</h3>
+                <p class="overview-label">Daily Average</p>
+                <span class="overview-change" id="avgChange">This Month</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Report Filters -->
+          <div class="report-filters">
+            <div class="filter-header">
+              <h3>
+                <i class="fas fa-filter"></i>
+                Report Filters
+              </h3>
+              <div class="filter-presets">
+                <button
+                  class="filter-preset active"
+                  onclick="setReportPeriod('month')"
+                >
+                  <i class="fas fa-calendar-alt"></i>
+                  This Month
+                </button>
+                <button
+                  class="filter-preset"
+                  onclick="setReportPeriod('quarter')"
+                >
+                  <i class="fas fa-calendar"></i>
+                  Last 3 Months
+                </button>
+                <button class="filter-preset" onclick="setReportPeriod('year')">
+                  <i class="fas fa-calendar-week"></i>
+                  This Year
+                </button>
+              </div>
+            </div>
+            <div class="filter-controls">
+              <div class="filter-group">
+                <label for="reportType">
+                  <i class="fas fa-chart-bar"></i>
+                  Report Type
+                </label>
+                <select id="reportType" class="form-control">
+                  <option value="expense">Expense Analysis</option>
+                  <option value="deposit">Deposit Tracking</option>
+                  <option value="balance">Balance Overview</option>
+                  <option value="member">Member Analysis</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="startDate">
+                  <i class="fas fa-calendar-day"></i>
+                  Start Date
+                </label>
+                <input type="date" id="startDate" class="form-control" />
+              </div>
+              <div class="filter-group">
+                <label for="endDate">
+                  <i class="fas fa-calendar-day"></i>
+                  End Date
+                </label>
+                <input type="date" id="endDate" class="form-control" />
+              </div>
+              <div class="filter-group">
+                <label for="memberFilter">
+                  <i class="fas fa-user"></i>
+                  Member
+                </label>
+                <select id="memberFilter" class="form-control">
+                  <option value="">All Members</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts and Analytics -->
+          <div class="analytics-section">
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>
+                  <i class="fas fa-chart-area"></i>
+                  Expense Trends
+                </h3>
+                <div class="chart-controls">
+                  <button
+                    class="chart-type-btn active"
+                    data-type="line"
+                    onclick="changeChartType('line')"
+                  >
+                    <i class="fas fa-chart-line"></i>
+                  </button>
+                  <button
+                    class="chart-type-btn"
+                    data-type="bar"
+                    onclick="changeChartType('bar')"
+                  >
+                    <i class="fas fa-chart-bar"></i>
+                  </button>
+                  <button
+                    class="chart-type-btn"
+                    data-type="pie"
+                    onclick="changeChartType('pie')"
+                  >
+                    <i class="fas fa-chart-pie"></i>
+                  </button>
                 </div>
-
-                <!-- Report Filters -->
-                <div class="report-filters">
-                    <div class="filter-header">
-                        <h3>
-                            <i class="fas fa-filter"></i>
-                            Report Filters
-                        </h3>
-                        <div class="filter-presets">
-                            <button class="filter-preset active" onclick="setReportPeriod('month')">
-                                <i class="fas fa-calendar-alt"></i>
-                                This Month
-                            </button>
-                            <button class="filter-preset" onclick="setReportPeriod('quarter')">
-                                <i class="fas fa-calendar"></i>
-                                Last 3 Months
-                            </button>
-                            <button class="filter-preset" onclick="setReportPeriod('year')">
-                                <i class="fas fa-calendar-week"></i>
-                                This Year
-                            </button>
-                        </div>
-                    </div>
-                    <div class="filter-controls">
-                        <div class="filter-group">
-                            <label for="reportType">
-                                <i class="fas fa-chart-bar"></i>
-                                Report Type
-                            </label>
-                            <select id="reportType" class="form-control">
-                                <option value="expense">Expense Analysis</option>
-                                <option value="deposit">Deposit Tracking</option>
-                                <option value="balance">Balance Overview</option>
-                                <option value="member">Member Analysis</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="startDate">
-                                <i class="fas fa-calendar-day"></i>
-                                Start Date
-                            </label>
-                            <input type="date" id="startDate" class="form-control">
-                        </div>
-                        <div class="filter-group">
-                            <label for="endDate">
-                                <i class="fas fa-calendar-day"></i>
-                                End Date
-                            </label>
-                            <input type="date" id="endDate" class="form-control">
-                        </div>
-                        <div class="filter-group">
-                            <label for="memberFilter">
-                                <i class="fas fa-user"></i>
-                                Member
-                            </label>
-                            <select id="memberFilter" class="form-control">
-                                <option value="">All Members</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts and Analytics -->
-                <div class="analytics-section">
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3>
-                                <i class="fas fa-chart-area"></i>
-                                Expense Trends
-                            </h3>
-                            <div class="chart-controls">
-                                <button class="chart-type-btn active" data-type="line" onclick="changeChartType('line')">
-                                    <i class="fas fa-chart-line"></i>
-                                </button>
-                                <button class="chart-type-btn" data-type="bar" onclick="changeChartType('bar')">
-                                    <i class="fas fa-chart-bar"></i>
-                                </button>
-                                <button class="chart-type-btn" data-type="pie" onclick="changeChartType('pie')">
-                                    <i class="fas fa-chart-pie"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="chart-canvas">
-                            <canvas id="expenseChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="chart-container">
-                        <div class="chart-header">
-                            <h3>
-                                <i class="fas fa-users"></i>
-                                Member Spending Distribution
-                            </h3>
-                        </div>
-                        <div class="chart-canvas">
-                            <canvas id="memberChart" width="400" height="200"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Detailed Reports Table -->
-                <div class="reports-table-section">
-                    <div class="table-header">
-                        <h3>
-                            <i class="fas fa-table"></i>
-                            Detailed Financial Report
-                        </h3>
-                        <div class="table-actions">
-                            <button class="action-btn small secondary" onclick="exportTableData()">
-                                <i class="fas fa-file-excel"></i>
-                                Export Excel
-                            </button>
-                            <button class="action-btn small outline" onclick="printReport()">
-                                <i class="fas fa-print"></i>
-                                Print
-                            </button>
-                        </div>
-                    </div>
-                    <div class="reports-table">
-                        <table id="reportsTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Type</th>
-                                    <th>Member</th>
-                                    <th>Amount</th>
-                                    <th>Description</th>
-                                    <th>Balance Impact</th>
-                                </tr>
-                            </thead>
-                            <tbody id="reportsTableBody">
-                                <!-- Dynamic content will be loaded here -->
-                                <tr class="loading-row">
-                                    <td colspan="6" style="text-align: center; padding: 2rem;">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                        Loading report data...
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Summary Cards -->
-                <div class="summary-insights">
-                    <div class="insight-card">
-                        <div class="insight-header">
-                            <h4>
-                                <i class="fas fa-trending-up"></i>
-                                Top Spending Categories
-                            </h4>
-                        </div>
-                        <div class="insight-content" id="topCategories">
-                            <div class="loading-placeholder">Loading insights...</div>
-                        </div>
-                    </div>
-                    
-                    <div class="insight-card">
-                        <div class="insight-header">
-                            <h4>
-                                <i class="fas fa-calendar-check"></i>
-                                Monthly Comparison
-                            </h4>
-                        </div>
-                        <div class="insight-content" id="monthlyComparison">
-                            <div class="loading-placeholder">Loading comparison...</div>
-                        </div>
-                    </div>
-                    
-                    <div class="insight-card">
-                        <div class="insight-header">
-                            <h4>
-                                <i class="fas fa-lightbulb"></i>
-                                Financial Insights
-                            </h4>
-                        </div>
-                        <div class="insight-content" id="financialInsights">
-                            <div class="loading-placeholder">Analyzing patterns...</div>
-                        </div>
-                    </div>
-                </div>
+              </div>
+              <div class="chart-canvas">
+                <canvas id="expenseChart" width="400" height="200"></canvas>
+              </div>
             </div>
 
-            <!-- Floating Action Button -->
-            <div class="floating-action-btn" onclick="generateReport()" title="Generate New Report">
-                <i class="fas fa-chart-bar"></i>
+            <div class="chart-container">
+              <div class="chart-header">
+                <h3>
+                  <i class="fas fa-users"></i>
+                  Member Spending Distribution
+                </h3>
+              </div>
+              <div class="chart-canvas">
+                <canvas id="memberChart" width="400" height="200"></canvas>
+              </div>
             </div>
-        </main>
+          </div>
+
+          <!-- Detailed Reports Table -->
+          <div class="reports-table-section">
+            <div class="table-header">
+              <h3>
+                <i class="fas fa-table"></i>
+                Detailed Financial Report
+              </h3>
+              <div class="table-actions">
+                <button
+                  class="action-btn small secondary"
+                  onclick="exportTableData()"
+                >
+                  <i class="fas fa-file-excel"></i>
+                  Export Excel
+                </button>
+                <button
+                  class="action-btn small outline" id="print-btn"
+                  onclick="printReport()"
+                >
+                  <i class="fas fa-print"></i>
+                  Print
+                </button>
+                <button
+                  class="action-btn outline"
+                  onclick="refreshReports()"
+                  title="Refresh"
+                >
+                  <i class="fas fa-sync-alt"></i>
+                  Refresh
+                </button>
+              </div>
+            </div>
+            <div class="reports-table">
+              <table id="reportsTable">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Member</th>
+                    <th>Amount</th>
+                    <th>Description</th>
+                    <th>Balance Impact</th>
+                  </tr>
+                </thead>
+                <tbody id="reportsTableBody">
+                  <!-- Dynamic content will be loaded here -->
+                  <tr class="loading-row">
+                    <td colspan="6" style="text-align: center; padding: 2rem">
+                      <i class="fas fa-spinner fa-spin"></i>
+                      Loading report data...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Summary Cards -->
+          <div class="summary-insights">
+            <div class="insight-card">
+              <div class="insight-header">
+                <h4>
+                  <i class="fas fa-trending-up"></i>
+                  Top Spending Categories
+                </h4>
+              </div>
+              <div class="insight-content" id="topCategories">
+                <div class="loading-placeholder">Loading insights...</div>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-header">
+                <h4>
+                  <i class="fas fa-calendar-check"></i>
+                  Monthly Comparison
+                </h4>
+              </div>
+              <div class="insight-content" id="monthlyComparison">
+                <div class="loading-placeholder">Loading comparison...</div>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-header">
+                <h4>
+                  <i class="fas fa-lightbulb"></i>
+                  Financial Insights
+                </h4>
+              </div>
+              <div class="insight-content" id="financialInsights">
+                <div class="loading-placeholder">Analyzing patterns...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating Action Button -->
+        <div
+          class="floating-action-btn"
+          onclick="generateReport()"
+          title="Generate New Report"
+        >
+          <i class="fas fa-chart-bar"></i>
+        </div>
+      </main>
     </div>
-    
+
     <!-- Toast Notification -->
     <div class="toast-notification" id="toastNotification">
-        <div class="toast-content">
-            <div class="toast-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="toast-message">
-                <span id="toastMessage">Success message</span>
-            </div>
-            <button class="toast-close" onclick="hideToast()">
-                <i class="fas fa-times"></i>
-            </button>
+      <div class="toast-content">
+        <div class="toast-icon">
+          <i class="fas fa-check-circle"></i>
         </div>
+        <div class="toast-message">
+          <span id="toastMessage">Success message</span>
+        </div>
+        <button class="toast-close" onclick="hideToast()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
     </div>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="main.js"></script>
     <script src="dashboard.js"></script>
     <script src="reports.js"></script>
-</body>
+  </body>
 </html>

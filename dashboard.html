@@ -1,220 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MealMate - Dashboard</title>
     <!-- Keep existing styles for compatibility -->
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
     <!-- Add new dashboard styles -->
-    <link rel="stylesheet" href="dashboard-styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <link rel="stylesheet" href="dashboard-styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="modern-dashboard">
-        <!-- Header -->
-        <header class="modern-header">
-            <div class="header-container">
-                <div class="header-left">
-                    <div class="brand-logo">
-                        <div class="logo-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <div class="brand-text">
-                            <h1>MealMate</h1>
-                            <span>Dashboard</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="header-center">
-                    <nav class="main-nav">
-                        <a href="dashboard.html" class="nav-item active">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                        <a href="reports.html" class="nav-item">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Reports</span>
-                        </a>
-                        <a href="bazar.html" class="nav-item">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Bazar</span>
-                        </a>
-                        <a href="deposit.html" class="nav-item">
-                            <i class="fas fa-wallet"></i>
-                            <span>Deposits</span>
-                        </a>
-                        <a href="members.html" class="nav-item">
-                            <i class="fas fa-users"></i>
-                            <span>Members</span>
-                        </a>
-                    </nav>
-                </div>
-                
-                <div class="header-right">
-                    <div class="user-profile">
-                        <div class="user-avatar-modern">
-                            <span class="avatar-letter">U</span>
-                        </div>
-                        <div class="user-details">
-                            <span class="user-name">User</span>
-                            <span class="user-role">Member</span>
-                        </div>
-                        <div class="user-actions">
-                            <div class="dropdown">
-                                <button class="dropdown-toggle" aria-label="User menu">
-                                    <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <div class="dropdown-menu">
-                                    <a href="profile.html?userId=1" class="dropdown-item">
-                                        <i class="fas fa-user"></i>
-                                        <span>Profile</span>
-                                    </a>
-                                    <a href="members.html" class="dropdown-item">
-                                        <i class="fas fa-users-cog"></i>
-                                        <span>Manage Members</span>
-                                    </a>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item logout-btn">
-                                        <i class="fas fa-sign-out-alt"></i>
-                                        <span>Logout</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Header -->
+      <header class="modern-header">
+        <div class="header-container">
+          <div class="header-left">
+            <div class="brand-logo">
+              <div class="logo-icon">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <div class="brand-text">
+                <h1>MealMate</h1>
+                <span>Dashboard</span>
+              </div>
             </div>
-        </header>
+          </div>
 
-        <!-- Main Dashboard Content -->
-        <main class="dashboard-main">
-            <!-- Stats Cards -->
-            <section class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">Today's Meal Rate</span>
-                        <div class="stat-icon today-meal">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value today-meal-value">৳0.00</div>
-                    <div class="stat-subtitle today-meal-subtitle">0 meals today</div>
-                    <div class="stat-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        12% from yesterday
-                    </div>
-                </div>
+          <div class="header-center">
+            <nav class="main-nav">
+              <a href="dashboard.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+              </a>
+              <a href="reports.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Reports</span>
+              </a>
+              <a href="bazar.html" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Bazar</span>
+              </a>
+              <a href="deposit.html" class="nav-item">
+                <i class="fas fa-wallet"></i>
+                <span>Deposits</span>
+              </a>
+              <a href="members.html" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>Members</span>
+              </a>
+            </nav>
+          </div>
 
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">Total Cost</span>
-                        <div class="stat-icon total-cost">
-                            <i class="fas fa-receipt"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value total-cost-value">৳0.00</div>
-                    <div class="stat-subtitle total-cost-subtitle">This month: ৳0.00</div>
-                    <div class="stat-change total-cost-change positive">
-                        <i class="fas fa-arrow-up"></i>
-                        8% from last month
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">Total Deposit</span>
-                        <div class="stat-icon deposit">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value deposit-value">৳0.00</div>
-                    <div class="stat-subtitle deposit-subtitle">Available balance</div>
-                    <div class="stat-change deposit-change positive">
-                        <i class="fas fa-plus"></i>
-                        Last deposit: ৳500
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-header">
-                        <span class="stat-title">Total Meals</span>
-                        <div class="stat-icon meal-count">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
-                    </div>
-                    <div class="stat-value meal-count-value">0</div>
-                    <div class="stat-subtitle meal-count-subtitle">This month: 0 meals</div>
-                    <div class="stat-change meal-count-change positive">
-                        <i class="fas fa-chart-line"></i>
-                        Avg: 2.5 meals/day
-                    </div>
-                </div>
-            </section>
-
-            <!-- Feature Cards -->
-            <section class="features-section">
-                <h2 class="section-title">
-                    <i class="fas fa-grid-horizontal"></i>
-                    Quick Access
-                </h2>
-                <div class="features-grid">
-                    <a href="reports.html" class="feature-card" data-target="reports.html">
-                        <div class="feature-icon reports">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <h3>Reports & Analytics</h3>
-                        <p>View detailed reports of your meal expenses, patterns, and financial insights.</p>
-                        <div class="feature-action">
-                            <span>View Reports</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+          <div class="header-right">
+            <div class="user-profile">
+              <div class="user-avatar-modern">
+                <span class="avatar-letter">U</span>
+              </div>
+              <div class="user-details">
+                <span class="user-name">User</span>
+                <span class="user-role">Member</span>
+              </div>
+              <div class="user-actions">
+                <div class="dropdown">
+                  <button class="dropdown-toggle" aria-label="User menu">
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a href="profile.html?userId=1" class="dropdown-item">
+                      <i class="fas fa-user"></i>
+                      <span>Profile</span>
                     </a>
-
-                    <a href="bazar.html" class="feature-card" data-target="bazar.html">
-                        <div class="feature-icon bazar">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <h3>Bazar Management</h3>
-                        <p>Track your grocery shopping, manage shopping lists, and monitor market expenses.</p>
-                        <div class="feature-action">
-                            <span>Manage Bazar</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
+                    <a href="members.html" class="dropdown-item">
+                      <i class="fas fa-users-cog"></i>
+                      <span>Manage Members</span>
                     </a>
-
-                    <a href="deposit.html" class="feature-card" data-target="deposit.html">
-                        <div class="feature-icon deposits">
-                            <i class="fas fa-wallet"></i>
-                        </div>
-                        <h3>Deposit Management</h3>
-                        <p>Manage your meal fund deposits, track balances, and monitor financial contributions.</p>
-                        <div class="feature-action">
-                            <span>Manage Deposits</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </a>
-
-                    <a href="members.html" class="feature-card" data-target="members.html">
-                        <div class="feature-icon members">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <h3>Manage Members</h3>
-                        <p>Add, edit, and manage family members or group participants in your meal planning.</p>
-                        <div class="feature-action">
-                            <span>Manage Members</span>
-                            <i class="fas fa-arrow-right"></i>
-                        </div>
-                    </a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout-btn">
+                      <i class="fas fa-sign-out-alt"></i>
+                      <span>Logout</span>
+                    </button>
+                  </div>
                 </div>
-            </section>
-        </main>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Dashboard Content -->
+      <main class="dashboard-main">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+          <div class="welcome-content">
+            <div class="welcome-text">
+              <h1
+                >Welcome back, <span class="user-name-dynamic">User</span>!
+                👋</h1
+              >
+              <p class="welcome-subtitle"
+                >Here's what's happening with your meal management today</p
+              >
+             
+            </div>
+            <div class="welcome-actions">
+              <button
+                class="action-btn primary large"
+                onclick="quickAddExpense()"
+              >
+                <i class="fas fa-plus"></i>
+                Quick Add Expense
+              </button>
+              <button
+                class="action-btn secondary large"
+                onclick="viewReports()"
+              >
+                <i class="fas fa-chart-line"></i>
+                View Reports
+              </button>
+            </div>
+          </div>
+         
+        </section>
+
+        <!-- Enhanced Stats Cards -->
+        <section class="stats-overview">
+          <div class="stats-header">
+            <h2>
+              <i class="fas fa-chart-bar"></i>
+              Financial Overview
+            </h2>
+            <div class="stats-period">
+              <select id="statsPeriod" class="period-selector">
+                <option value="week">This Week</option>
+                <option value="month" selected>This Month</option>
+                <option value="quarter">Last 3 Months</option>
+              </select>
+            </div>
+          </div>
+          <div class="stats-grid-enhanced">
+            <div class="stat-card-modern">
+              <div class="stat-header">
+                <div class="stat-info">
+                  <span class="stat-title">Total Expenses</span>
+                  <span class="stat-subtitle">All bazar expenses</span>
+                </div>
+                <div class="stat-icon expenses">
+                  <i class="fas fa-shopping-cart"></i>
+                </div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="totalExpenses">৳0.00</div>
+                <div class="stat-trend">
+                  <span class="trend-indicator" id="expensesTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    +12%
+                  </span>
+                  <span class="trend-text">vs last period</span>
+                </div>
+              </div>
+              <div class="stat-progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill"
+                    id="expensesProgress"
+                    style="width: 65%"
+                  ></div>
+                </div>
+                <span class="progress-text">65% of budget used</span>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-header">
+                <div class="stat-info">
+                  <span class="stat-title">Total Deposits</span>
+                  <span class="stat-subtitle">All fund deposits</span>
+                </div>
+                <div class="stat-icon deposits">
+                  <i class="fas fa-piggy-bank"></i>
+                </div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="totalDeposits">৳0.00</div>
+                <div class="stat-trend">
+                  <span class="trend-indicator positive" id="depositsTrend">
+                    <i class="fas fa-arrow-up"></i>
+                    +8%
+                  </span>
+                  <span class="trend-text">vs last period</span>
+                </div>
+              </div>
+              <div class="stat-progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill deposits"
+                    id="depositsProgress"
+                    style="width: 80%"
+                  ></div>
+                </div>
+                <span class="progress-text">80% target achieved</span>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-header">
+                <div class="stat-info">
+                  <span class="stat-title">Available Balance</span>
+                  <span class="stat-subtitle">Current funds</span>
+                </div>
+                <div class="stat-icon balance">
+                  <i class="fas fa-wallet"></i>
+                </div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="availableBalance">৳0.00</div>
+                <div class="stat-trend">
+                  <span class="trend-indicator" id="balanceTrend">
+                    <i class="fas fa-minus"></i>
+                    -5%
+                  </span>
+                  <span class="trend-text">vs last week</span>
+                </div>
+              </div>
+              <div class="stat-progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill balance"
+                    id="balanceProgress"
+                    style="width: 45%"
+                  ></div>
+                </div>
+                <span class="progress-text">Balance health: Moderate</span>
+              </div>
+            </div>
+
+            <div class="stat-card-modern">
+              <div class="stat-header">
+                <div class="stat-info">
+                  <span class="stat-title">Daily Average</span>
+                  <span class="stat-subtitle">Per day spending</span>
+                </div>
+                <div class="stat-icon average">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="dailyAverage">৳0.00</div>
+                <div class="stat-trend">
+                  <span class="trend-indicator positive" id="averageTrend">
+                    <i class="fas fa-arrow-down"></i>
+                    -3%
+                  </span>
+                  <span class="trend-text">Lower than last month</span>
+                </div>
+              </div>
+              <div class="stat-progress">
+                <div class="progress-bar">
+                  <div
+                    class="progress-fill average"
+                    id="averageProgress"
+                    style="width: 70%"
+                  ></div>
+                </div>
+                <span class="progress-text">Spending pattern: Good</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dashboard Widgets -->
+        <section class="dashboard-widgets">
+          <div class="widgets-grid">
+            <!-- Recent Activity Widget -->
+           
+            <!-- Expense Chart Widget -->
+            <div class="widget-card chart-widget">
+              <div class="widget-header">
+                <h3>
+                  <i class="fas fa-chart-area"></i>
+                  Expense Trends
+                </h3>
+                <div class="chart-controls">
+                  <button class="chart-period active" data-period="7"
+                    >7D</button
+                  >
+                  <button class="chart-period" data-period="30">30D</button>
+                  <button class="chart-period" data-period="90">90D</button>
+                </div>
+              </div>
+              <div class="widget-content chart-container">
+                <canvas id="expenseChart" width="400" height="200"></canvas>
+              </div>
+            </div>
+
+
+            <!-- Top Spenders Widget -->
+            <div class="widget-card">
+              <div class="widget-header">
+                <h3>
+                  <i class="fas fa-crown"></i>
+                  Top Spenders
+                </h3>
+                <span class="widget-subtitle">This month</span>
+              </div>
+              <div class="widget-content">
+                <div class="spenders-list" id="topSpenders">
+                  <div class="spender-item loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    Loading spender data...
+                  </div>
+                </div>
+              </div>
+            </div>
+
+              <!-- Quick Actions Widget -->
+            <div class="widget-card">
+              <div class="widget-header">
+                <h3>
+                  <i class="fas fa-bolt"></i>
+                  Quick Actions
+                </h3>
+              </div>
+              <div class="widget-content">
+                <div class="quick-actions-grid">
+                  <button class="quick-action-btn" onclick="addBazarRecord()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Add Bazar</span>
+                  </button>
+                  <button class="quick-action-btn" onclick="addDeposit()">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Add Deposit</span>
+                  </button>
+                  <button class="quick-action-btn" onclick="viewReports()">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>View Reports</span>
+                  </button>
+                  <button class="quick-action-btn" onclick="manageMembers()">
+                    <i class="fas fa-users"></i>
+                    <span>Manage Members</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Budget Status Widget -->
+            <div class="widget-card">
+              <div class="widget-header">
+                <h3>
+                  <i class="fas fa-target"></i>
+                  Budget Status
+                </h3>
+                <button class="widget-action" onclick="manageBudget()">
+                  <i class="fas fa-cog"></i>
+                </button>
+              </div>
+              <div class="widget-content">
+                <div class="budget-overview">
+                  <div class="budget-item">
+                    <div class="budget-label">Monthly Budget</div>
+                    <div class="budget-amount" id="monthlyBudgetAmount"
+                      >৳5,000</div
+                    >
+                  </div>
+                  <div class="budget-item">
+                    <div class="budget-label">Spent This Month</div>
+                    <div class="budget-amount spent" id="monthlySpent"
+                      >৳3,250</div
+                    >
+                  </div>
+                  <div class="budget-item">
+                    <div class="budget-label">Remaining</div>
+                    <div class="budget-amount remaining" id="budgetRemaining"
+                      >৳1,750</div
+                    >
+                  </div>
+                  <div class="budget-progress-container">
+                    <div class="budget-progress-bar">
+                      <div
+                        class="budget-progress-fill"
+                        id="budgetProgressFill"
+                        style="width: 65%"
+                      ></div>
+                    </div>
+                    <div class="budget-progress-text">65% of budget used</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Insights Widget -->
+            <div class="widget-card insights-widget">
+              <div class="widget-header">
+                <h3>
+                  <i class="fas fa-lightbulb"></i>
+                  Smart Insights
+                </h3>
+              </div>
+              <div class="widget-content">
+                <div class="insights-list" id="smartInsights">
+                  <div class="insight-item">
+                    <div class="insight-icon">💡</div>
+                    <div class="insight-text">
+                      <strong>Spending Tip:</strong> You're spending 15% less
+                      than last month. Great job!
+                    </div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon">📊</div>
+                    <div class="insight-text">
+                      <strong>Pattern Alert:</strong> Grocery expenses are
+                      highest on weekends.
+                    </div>
+                  </div>
+                  <div class="insight-item">
+                    <div class="insight-icon">💰</div>
+                    <div class="insight-text">
+                      <strong>Budget Status:</strong> You're on track to meet
+                      this month's budget goal.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+        </section>
+
+        <!-- Feature Cards -->
+        <!-- <section class="features-section">
+          <h2 class="section-title">
+            <i class="fas fa-grid-horizontal"></i>
+            Quick Access
+          </h2>
+          <div class="features-grid">
+            <a
+              href="reports.html"
+              class="feature-card"
+              data-target="reports.html"
+            >
+              <div class="feature-icon reports">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <h3>Reports & Analytics</h3>
+              <p
+                >View detailed reports of your meal expenses, patterns, and
+                financial insights.</p
+              >
+              <div class="feature-action">
+                <span>View Reports</span>
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a href="bazar.html" class="feature-card" data-target="bazar.html">
+              <div class="feature-icon bazar">
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+              <h3>Bazar Management</h3>
+              <p
+                >Track your grocery shopping, manage shopping lists, and monitor
+                market expenses.</p
+              >
+              <div class="feature-action">
+                <span>Manage Bazar</span>
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a
+              href="deposit.html"
+              class="feature-card"
+              data-target="deposit.html"
+            >
+              <div class="feature-icon deposits">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <h3>Deposit Management</h3>
+              <p
+                >Manage your meal fund deposits, track balances, and monitor
+                financial contributions.</p
+              >
+              <div class="feature-action">
+                <span>Manage Deposits</span>
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+
+            <a
+              href="members.html"
+              class="feature-card"
+              data-target="members.html"
+            >
+              <div class="feature-icon members">
+                <i class="fas fa-users"></i>
+              </div>
+              <h3>Manage Members</h3>
+              <p
+                >Add, edit, and manage family members or group participants in
+                your meal planning.</p
+              >
+              <div class="feature-action">
+                <span>Manage Members</span>
+                <i class="fas fa-arrow-right"></i>
+              </div>
+            </a>
+          </div>
+        </section> -->
+      </main>
     </div>
 
-    <!-- Keep existing main.js for compatibility -->
-    <script src="main.js"></script>
-    <!-- Add new dashboard functionality -->
-    <script src="dashboard.js"></script>
-</body>
+    <!-- Chart.js for enhanced charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Enhanced dashboard functionality -->
+    <script src="dashboard-enhanced.js"></script>
+  </body>
 </html>

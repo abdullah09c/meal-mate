@@ -319,7 +319,7 @@ function showEmptyState() {
     const cardView = document.getElementById('cardView');
     const tableView = document.getElementById('tableView');
     
-    if (emptyState) emptyState.style.display = 'block';
+    if (emptyState) emptyState.style.display = 'flex';
     if (cardView) cardView.style.display = 'none';
     if (tableView) tableView.style.display = 'none';
 }
