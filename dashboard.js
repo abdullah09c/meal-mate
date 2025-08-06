@@ -1024,6 +1024,7 @@ function hideLoading() {
 // ===== MEMBER MANAGEMENT FUNCTIONS =====
 
 let currentMemberToRemove = null;
+let currentMemberToEdit = null;
 let membersData = [];
 
 function initializeMemberManagement() {
@@ -1036,6 +1037,7 @@ function initializeMemberManagement() {
   // Setup form submission handlers
   setupAddMemberForm();
   setupRemoveMemberForm();
+  setupEditMemberForm();
 
   // Setup Add Member button click handlers
   setupAddMemberButtons();
@@ -1072,6 +1074,16 @@ function setupAddMemberButtons() {
     button.addEventListener("click", function (e) {
       e.preventDefault();
       closeRemoveMemberModal();
+    });
+  });
+
+  const closeEditButtons = document.querySelectorAll(
+    '[data-action="close-edit-modal"]'
+  );
+  closeEditButtons.forEach((button) => {
+    button.addEventListener("click", function (e) {
+      e.preventDefault();
+      closeEditMemberModal();
     });
   });
 }
@@ -1164,6 +1176,40 @@ function setupRemoveMemberForm() {
   });
 }
 
+function setupEditMemberForm() {
+  const form = document.getElementById("editMemberForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    // Clear previous errors
+    clearFormErrors();
+
+    // Get form data
+    const formData = {
+      id: currentMemberToEdit,
+      name: document.getElementById("editMemberName").value.trim(),
+      joinDate: document.getElementById("editJoinDate").value,
+      password: document.getElementById("editAdminPassword").value,
+    };
+
+    // Validate form
+    if (!validateEditMemberForm(formData)) {
+      return;
+    }
+
+    // Verify password
+    if (!verifyAdminPassword(formData.password)) {
+      showFormError("edit-password-error", "Incorrect password. Please try again.");
+      return;
+    }
+
+    // Update member
+    await updateMemberById(formData);
+  });
+}
+
 function validateAddMemberForm(data) {
   let isValid = true;
 
@@ -1175,6 +1221,25 @@ function validateAddMemberForm(data) {
   if (!data.password) {
     showFormError(
       "password-error",
+      "Please enter your password for confirmation"
+    );
+    isValid = false;
+  }
+
+  return isValid;
+}
+
+function validateEditMemberForm(data) {
+  let isValid = true;
+
+  if (!data.name) {
+    showFormError("edit-name-error", "Please enter the member name");
+    isValid = false;
+  }
+
+  if (!data.password) {
+    showFormError(
+      "edit-password-error",
       "Please enter your password for confirmation"
     );
     isValid = false;
@@ -1314,6 +1379,62 @@ async function removeMemberById(memberId) {
   }
 }
 
+async function updateMemberById(data) {
+  try {
+    // Show loading state
+    const submitBtn = document.querySelector("#editMemberForm .submit-btn");
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+    submitBtn.disabled = true;
+
+    // Get current user ID from localStorage or URL params
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = currentUser.id || urlParams.get('userId') || 1;
+
+    // Send update request to backend
+    const response = await fetch(`/api/members/${data.id}?userId=${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: data.name,
+        joinDate: data.joinDate,
+        adminPassword: data.password,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+      // Reload members from database
+      await loadMembersFromDatabase();
+
+      // Close modal and reset form
+      closeEditMemberModal();
+      document.getElementById("editMemberForm").reset();
+
+      // Show success message
+      showSuccessMessage(`${data.name} has been updated successfully!`);
+    } else {
+      showFormError("edit-password-error", result.message);
+    }
+
+    // Reset button
+    submitBtn.innerHTML = originalText;
+    submitBtn.disabled = false;
+  } catch (error) {
+    console.error("Error updating member:", error);
+    showFormError("edit-password-error", "Failed to update member. Please try again.");
+
+    // Reset button
+    const submitBtn = document.querySelector("#editMemberForm .submit-btn");
+    submitBtn.innerHTML = '<i class="fas fa-save"></i> Update Member';
+    submitBtn.disabled = false;
+  }
+}
+
 function renderMembers() {
   const membersGrid = document.getElementById("membersGrid");
   const emptyState = document.getElementById("emptyState");
@@ -1414,11 +1535,38 @@ function closeRemoveMemberModal() {
   currentMemberToRemove = null;
 }
 
+function closeEditMemberModal() {
+  const modal = document.getElementById("editMemberModal");
+  if (modal) {
+    modal.classList.remove("active");
+    document.body.style.overflow = "auto";
+    document.getElementById("editMemberForm").reset();
+    clearFormErrors();
+  }
+  currentMemberToEdit = null;
+}
+
 function editMember(memberId) {
-  // For now, just show an alert. In a real app, this would open an edit modal
   const member = membersData.find((m) => m.id === memberId);
-  if (member) {
-    alert(`Edit functionality for ${member.name} will be implemented soon!`);
+  if (!member) {
+    showFormError("edit-name-error", "Member not found");
+    return;
+  }
+
+  currentMemberToEdit = memberId;
+
+  // Populate the edit form with current member data
+  document.getElementById("editMemberName").value = member.name;
+  document.getElementById("editJoinDate").value = member.joinDate;
+  
+  // Clear any previous errors
+  clearFormErrors();
+
+  // Open edit modal
+  const modal = document.getElementById("editMemberModal");
+  if (modal) {
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
   }
 }
 

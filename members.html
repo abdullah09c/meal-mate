@@ -286,6 +286,100 @@
             </div>
           </div>
         </div>
+
+        <!-- Edit Member Modal -->
+        <div class="modal-overlay" id="editMemberModal">
+          <div class="modal-container">
+            <div class="modal-header">
+              <h2>
+                <i class="fas fa-user-edit"></i>
+                Edit Member
+              </h2>
+              <button class="close-btn" data-action="close-edit-modal">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+
+            <form class="modal-form" id="editMemberForm">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <i class="fas fa-user"></i>
+                  Member Information
+                </h3>
+
+                <div class="form-group">
+                  <label for="editMemberName">
+                    <i class="fas fa-signature"></i>
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="editMemberName"
+                    name="editMemberName"
+                    required
+                    placeholder="Enter member's full name"
+                  />
+                  <div class="error-message" id="edit-name-error"></div>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="editJoinDate">
+                      <i class="fas fa-calendar"></i>
+                      Join Date
+                    </label>
+                    <input type="date" id="editJoinDate" name="editJoinDate" required />
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-section">
+                <h3 class="section-title">
+                  <i class="fas fa-shield-alt"></i>
+                  Confirmation
+                </h3>
+
+                <div class="form-group">
+                  <label for="editAdminPassword">
+                    <i class="fas fa-lock"></i>
+                    Your Password (for confirmation)
+                  </label>
+                  <div class="password-container">
+                    <input
+                      type="password"
+                      id="editAdminPassword"
+                      name="editAdminPassword"
+                      required
+                      placeholder="Enter your password to confirm"
+                    />
+                    <span
+                      class="eye-icon"
+                      onclick="togglePassword('editAdminPassword', this)"
+                    >
+                      <i class="fas fa-eye"></i>
+                    </span>
+                  </div>
+                  <div class="error-message" id="edit-password-error"></div>
+                </div>
+              </div>
+
+              <div class="modal-actions">
+                <button
+                  type="button"
+                  class="cancel-btn"
+                  data-action="close-edit-modal"
+                >
+                  <i class="fas fa-times"></i>
+                  Cancel
+                </button>
+                <button type="submit" class="submit-btn">
+                  <i class="fas fa-save"></i>
+                  Update Member
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </main>
     </div>
 

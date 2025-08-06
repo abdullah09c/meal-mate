@@ -1006,6 +1006,105 @@ app.delete('/api/members/:memberId', async (req, res) => {
   }
 });
 
+// Update member
+app.put('/api/members/:memberId', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1;
+    const memberId = req.params.memberId;
+    const { name, joinDate, adminPassword } = req.body;
+    
+    console.log('Update member request:', { userId, memberId, name, joinDate, hasPassword: !!adminPassword });
+    
+    // Validation
+    if (!name || !joinDate || !adminPassword) {
+      console.log('Validation failed:', { name: !!name, joinDate: !!joinDate, adminPassword: !!adminPassword });
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Name, join date, and password are required' 
+      });
+    }
+    
+    // Verify admin password
+    const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    console.log('Checking user:', userId);
+    db.query(getUserQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Database error' 
+        });
+      }
+      
+      console.log('User query results:', results.length);
+      if (results.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+      
+      const user = results[0];
+      const passwordMatch = await bcrypt.compare(adminPassword, user.password_hash);
+      console.log('Password match:', passwordMatch);
+      
+      if (!passwordMatch) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Incorrect password' 
+        });
+      }
+      
+      // Check if member exists and belongs to this user
+      const checkMemberQuery = 'SELECT name FROM members WHERE id = ? AND user_id = ?';
+      console.log('Checking member:', { memberId, userId });
+      db.query(checkMemberQuery, [memberId, userId], (checkErr, checkResults) => {
+        if (checkErr) {
+          console.error('Database error:', checkErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Database error' 
+          });
+        }
+        
+        console.log('Member check results:', checkResults.length);
+        if (checkResults.length === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'Member not found' 
+          });
+        }
+        
+        // Update member
+        const updateMemberQuery = 'UPDATE members SET name = ?, join_date = ? WHERE id = ? AND user_id = ?';
+        console.log('Updating member:', { name, joinDate, memberId, userId });
+        db.query(updateMemberQuery, [name, joinDate, memberId, userId], (updateErr, updateResults) => {
+          if (updateErr) {
+            console.error('Error updating member:', updateErr);
+            return res.status(500).json({ 
+              success: false, 
+              message: 'Error updating member' 
+            });
+          }
+          
+          console.log('Update results:', updateResults);
+          res.json({ 
+            success: true, 
+            message: `${name} updated successfully` 
+          });
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+});
+
 // Deposit Management API Endpoints
 
 // Get all deposits
