@@ -39,7 +39,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'your_mysql_username',    // Change this
   password: 'your_mysql_password', // Change this
-  database: 'signup_db'
+  database: 'db'
 });
 ```
 

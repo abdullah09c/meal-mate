@@ -18,7 +18,7 @@ const db = mysql.createConnection({
   host: 'localhost',
   user: 'mate', // Change this to your MySQL username
   password: 'Abc1234@', // Change this to your MySQL password
-  database: 'signup_db'
+  database: 'meal_mate'
 });
 
 // Connect to MySQL
@@ -33,7 +33,8 @@ db.connect((err) => {
   const createTableQuery = `
     CREATE TABLE IF NOT EXISTS users (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      full_name VARCHAR(100),
+      first_name VARCHAR(50) NOT NULL,
+      last_name VARCHAR(50) NOT NULL,
       email VARCHAR(255) UNIQUE NOT NULL,
       username VARCHAR(100) UNIQUE NOT NULL,
       phone VARCHAR(20),
@@ -51,6 +52,38 @@ db.connect((err) => {
       console.error('Error creating users table:', err);
     } else {
       console.log('Users table ready');
+      
+      // Check if we need to migrate from full_name to first_name/last_name
+      db.query("SHOW COLUMNS FROM users LIKE 'full_name'", (err, results) => {
+        if (!err && results.length > 0) {
+          console.log('Migrating from full_name to first_name/last_name...');
+          
+          // Add new columns if they don't exist
+          db.query("ALTER TABLE users ADD COLUMN first_name VARCHAR(50), ADD COLUMN last_name VARCHAR(50)", (err) => {
+            if (err && !err.message.includes('Duplicate column name')) {
+              console.error('Error adding new columns:', err);
+              return;
+            }
+            
+            // Migrate existing data
+            db.query("UPDATE users SET first_name = SUBSTRING_INDEX(full_name, ' ', 1), last_name = SUBSTRING_INDEX(full_name, ' ', -1) WHERE full_name IS NOT NULL", (err) => {
+              if (err) {
+                console.error('Error migrating data:', err);
+                return;
+              }
+              
+              // Drop the old column
+              db.query("ALTER TABLE users DROP COLUMN full_name", (err) => {
+                if (err) {
+                  console.error('Error dropping full_name column:', err);
+                } else {
+                  console.log('Migration completed successfully');
+                }
+              });
+            });
+          });
+        }
+      });
     }
   });
 
@@ -235,7 +268,9 @@ app.post('/login', async (req, res) => {
         message: 'Login successful!',
         user: {
           id: user.id,
-          fullName: user.full_name,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          fullName: `${user.first_name} ${user.last_name}`,
           username: user.username,
           email: user.email
         }
@@ -254,10 +289,10 @@ app.post('/login', async (req, res) => {
 // Sign up route
 app.post('/signup', async (req, res) => {
   try {
-    const { fullName, email, username, phone, password, terms } = req.body;
+    const { firstName, lastName, email, username, phone, password, terms } = req.body;
     
     // Validation
-    if (!fullName || !email || !username || !phone || !password || !terms) {
+    if (!firstName || !lastName || !email || !username || !phone || !password || !terms) {
       return res.status(400).json({ 
         success: false, 
         message: 'All fields are required' 
@@ -303,8 +338,8 @@ app.post('/signup', async (req, res) => {
       const passwordHash = await bcrypt.hash(password, saltRounds);
       
       // Insert new user
-      const insertUserQuery = 'INSERT INTO users (full_name, email, username, phone, password_hash) VALUES (?, ?, ?, ?, ?)';
-      db.query(insertUserQuery, [fullName, email, username, phone, passwordHash], (err, results) => {
+      const insertUserQuery = 'INSERT INTO users (first_name, last_name, email, username, phone, password_hash) VALUES (?, ?, ?, ?, ?, ?)';
+      db.query(insertUserQuery, [firstName, lastName, email, username, phone, passwordHash], (err, results) => {
         if (err) {
           console.error('Error inserting user:', err);
           return res.status(500).json({ 
@@ -510,7 +545,7 @@ app.get('/api/total-meals', (req, res) => {
 app.get('/api/user-profile', (req, res) => {
   const userId = req.query.userId || 1; // In a real app, get from session
   
-  const query = 'SELECT id, full_name as fullname, email, username, phone, created_at FROM users WHERE id = ?';
+  const query = 'SELECT id, first_name, last_name, CONCAT(first_name, " ", last_name) as fullname, email, username, phone, created_at FROM users WHERE id = ?';
   db.query(query, [userId], (err, results) => {
     if (err) {
       console.error('Database error:', err);
@@ -588,9 +623,14 @@ app.put('/api/update-profile', async (req, res) => {
         });
       }
       
+      // Split fullname into first_name and last_name
+      const nameParts = fullname.trim().split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
       // Update user profile
-      const updateQuery = 'UPDATE users SET full_name = ?, username = ?, email = ?, phone = ? WHERE id = ?';
-      db.query(updateQuery, [fullname, username, email, phone, userId], (err, results) => {
+      const updateQuery = 'UPDATE users SET first_name = ?, last_name = ?, username = ?, email = ?, phone = ? WHERE id = ?';
+      db.query(updateQuery, [firstName, lastName, username, email, phone, userId], (err, results) => {
         if (err) {
           console.error('Database error:', err);
           return res.status(500).json({ message: 'Failed to update profile' });
@@ -687,6 +727,80 @@ app.put('/api/change-password', async (req, res) => {
     
   } catch (error) {
     console.error('Server error in change password:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
+  }
+});
+
+// Delete Account API endpoint
+app.delete('/api/delete-account', async (req, res) => {
+  try {
+    const userId = req.query.userId || 1; // In a real app, get from session
+    const { password } = req.body;
+    
+    console.log('Account deletion request for user ID:', userId);
+    
+    // Validation
+    if (!password) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Password is required for account deletion' 
+      });
+    }
+    
+    // Get current user and verify password
+    const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
+    db.query(getUserQuery, [userId], async (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Database error' 
+        });
+      }
+      
+      if (results.length === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
+      }
+      
+      const user = results[0];
+      
+      // Verify password
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      
+      if (!isPasswordValid) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Incorrect password' 
+        });
+      }
+      
+      // Delete user account (CASCADE will handle related records)
+      const deleteQuery = 'DELETE FROM users WHERE id = ?';
+      db.query(deleteQuery, [userId], (deleteErr) => {
+        if (deleteErr) {
+          console.error('Account deletion error:', deleteErr);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to delete account' 
+          });
+        }
+        
+        console.log('Account deleted successfully for user ID:', userId);
+        res.json({ 
+          success: true, 
+          message: 'Account deleted successfully' 
+        });
+      });
+    });
+    
+  } catch (error) {
+    console.error('Server error in delete account:', error);
     res.status(500).json({ 
       success: false, 
       message: 'Server error' 

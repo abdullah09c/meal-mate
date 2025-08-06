@@ -158,8 +158,12 @@
                         </div>
                         <div class="card-content">
                             <div class="info-group">
-                                <label>Full Name</label>
-                                <span class="info-value user-fullname">Loading...</span>
+                                <label>First Name</label>
+                                <span class="info-value user-firstname">Loading...</span>
+                            </div>
+                            <div class="info-group">
+                                <label>Last Name</label>
+                                <span class="info-value user-lastname">Loading...</span>
                             </div>
                             <div class="info-group">
                                 <label>Username</label>
@@ -208,12 +212,12 @@
                             </div>
                             <div class="setting-item">
                                 <div class="setting-info">
-                                    <label>Privacy Settings</label>
-                                    <p>Manage your privacy and data preferences</p>
+                                    <label>Delete Account</label>
+                                    <p>Permanently delete your account and all associated data</p>
                                 </div>
-                                <button class="setting-btn" data-action="privacy">
-                                    <i class="fas fa-shield-alt"></i>
-                                    Manage
+                                <button class="setting-btn" data-action="delete-account">
+                                    <i class="fas fa-trash-alt"></i>
+                                    Delete
                                 </button>
                             </div>
                         </div>
@@ -270,8 +274,12 @@
             </div>
             <form id="editProfileForm" class="modal-body">
                 <div class="form-group">
-                    <label for="editFullName">Full Name</label>
-                    <input type="text" id="editFullName" name="fullName" required>
+                    <label for="editFirstName">First Name</label>
+                    <input type="text" id="editFirstName" name="firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name</label>
+                    <input type="text" id="editLastName" name="lastName" required>
                 </div>
                 <div class="form-group">
                     <label for="editUsername">Username</label>
@@ -318,6 +326,46 @@
                     <button type="submit" class="save-btn">Update Password</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="deleteAccountModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete Account</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="warning-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h4>Warning: This action cannot be undone!</h4>
+                    <p>Deleting your account will permanently remove:</p>
+                    <ul>
+                        <li>Your personal information</li>
+                        <li>All meal records</li>
+                        <li>Deposit history</li>
+                        <li>Member associations</li>
+                    </ul>
+                </div>
+                <form id="deleteAccountForm">
+                    <div class="form-group">
+                        <label for="deletePassword">Enter your password to confirm:</label>
+                        <input type="password" id="deletePassword" name="password" required 
+                               placeholder="Enter your current password">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="confirmDelete" required>
+                            I understand that this action is permanent and cannot be undone
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="submit" class="delete-btn">Delete My Account</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 

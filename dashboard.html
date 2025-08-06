@@ -12,6 +12,11 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <!-- Chart.js for enhanced charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main functionality -->
+    <script src="main.js"></script>
+    <script src="dashboard.js"></script>
   </head>
   <body>
     <div class="modern-dashboard">
@@ -104,7 +109,6 @@
               <p class="welcome-subtitle"
                 >Here's what's happening with your meal management today</p
               >
-             
             </div>
             <div class="welcome-actions">
               <button
@@ -123,7 +127,6 @@
               </button>
             </div>
           </div>
-         
         </section>
 
         <!-- Enhanced Stats Cards -->
@@ -276,7 +279,7 @@
         <section class="dashboard-widgets">
           <div class="widgets-grid">
             <!-- Recent Activity Widget -->
-           
+
             <!-- Expense Chart Widget -->
             <div class="widget-card chart-widget">
               <div class="widget-header">
@@ -297,7 +300,6 @@
               </div>
             </div>
 
-
             <!-- Top Spenders Widget -->
             <div class="widget-card">
               <div class="widget-header">
@@ -317,7 +319,7 @@
               </div>
             </div>
 
-              <!-- Quick Actions Widget -->
+            <!-- Quick Actions Widget -->
             <div class="widget-card">
               <div class="widget-header">
                 <h3>
@@ -425,7 +427,6 @@
                 </div>
               </div>
             </div>
-            
           </div>
         </section>
 
@@ -511,54 +512,5 @@
         </section> -->
       </main>
     </div>
-
-    <!-- Chart.js for enhanced charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Main functionality -->
-    <script src="main.js"></script>
-    <!-- Enhanced dashboard functionality -->
-    <script src="dashboard-enhanced.js"></script>
-    
-    <!-- Ensure username is updated from database -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Function to update username from localStorage or URL
-            function updateUserName() {
-                const urlParams = new URLSearchParams(window.location.search);
-                let userName = 'User'; // Default fallback
-                
-                // Try to get user data from localStorage first
-                const currentUser = localStorage.getItem('currentUser');
-                if (currentUser) {
-                    try {
-                        const user = JSON.parse(currentUser);
-                        userName = user.fullName || user.username || 'User';
-                    } catch (e) {
-                        console.warn('Error parsing current user from localStorage:', e);
-                    }
-                }
-                
-                // Update all user name elements
-                const userNameElements = document.querySelectorAll('.user-name, .user-name-dynamic');
-                userNameElements.forEach(element => {
-                    if (element) {
-                        element.textContent = userName;
-                    }
-                });
-                
-                // Update avatar letter
-                const avatarLetterElement = document.querySelector('.avatar-letter');
-                if (avatarLetterElement && userName !== 'User') {
-                    avatarLetterElement.textContent = userName.charAt(0).toUpperCase();
-                }
-            }
-            
-            // Update immediately
-            updateUserName();
-            
-            // Also update after a short delay to ensure all scripts have loaded
-            setTimeout(updateUserName, 100);
-        });
-    </script>
   </body>
 </html>

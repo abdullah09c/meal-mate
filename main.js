@@ -166,7 +166,8 @@ function initializeSignupPage() {
     
     // Get form data
     const formData = {
-      fullName: document.getElementById('full-name').value,
+      firstName: document.getElementById('first-name').value,
+      lastName: document.getElementById('last-name').value,
       email: document.getElementById('email').value,
       username: document.getElementById('username').value,
       phone: document.getElementById('phone').value,
@@ -202,7 +203,9 @@ function initializeSignupPage() {
         // Create user object for localStorage
         const newUser = {
           id: result.userId,
-          fullName: formData.fullName,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          fullName: `${formData.firstName} ${formData.lastName}`,
           username: formData.username,
           email: formData.email
         };
@@ -429,13 +432,13 @@ function updateHeaderUserInfo() {
       // Update user name in header
       const userNameElement = document.querySelector('.user-name');
       if (userNameElement) {
-        userNameElement.textContent = user.fullName || user.username || 'User';
+        userNameElement.textContent = user.firstName || user.fullName || user.username || 'User';
       }
       
       // Update user avatar letter
       const avatarLetterElement = document.querySelector('.avatar-letter');
       if (avatarLetterElement) {
-        const name = user.fullName || user.username || 'User';
+        const name = user.firstName || user.fullName || user.username || 'User';
         if (name !== 'User') {
           avatarLetterElement.textContent = name.charAt(0).toUpperCase();
         }

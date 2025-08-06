@@ -109,57 +109,6 @@
           <!-- Members Grid -->
           <div class="members-grid" id="membersGrid">
             <!-- Sample members - will be dynamically populated -->
-            <div class="member-card">
-              <div class="member-avatar">
-                <span class="avatar-letter">JD</span>
-              </div>
-              <div class="member-info">
-                <h3 class="member-name">John Doe</h3>
-                <p class="member-role">Admin</p>
-                <p class="member-deposit">Initial: ৳5,000</p>
-                <p class="member-joined">Joined: Jan 15, 2025</p>
-              </div>
-              <div class="member-actions">
-                <button
-                  class="action-btn edit"
-                  onclick="editMember('john-doe')"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="action-btn delete"
-                  onclick="removeMember('john-doe')"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
-
-            <div class="member-card">
-              <div class="member-avatar">
-                <span class="avatar-letter">JS</span>
-              </div>
-              <div class="member-info">
-                <h3 class="member-name">Jane Smith</h3>
-                <p class="member-role">Member</p>
-                <p class="member-deposit">Initial: ৳3,000</p>
-                <p class="member-joined">Joined: Feb 02, 2025</p>
-              </div>
-              <div class="member-actions">
-                <button
-                  class="action-btn edit"
-                  onclick="editMember('jane-smith')"
-                >
-                  <i class="fas fa-edit"></i>
-                </button>
-                <button
-                  class="action-btn delete"
-                  onclick="removeMember('jane-smith')"
-                >
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>
           </div>
 
           <!-- Empty State -->
@@ -255,7 +204,7 @@
                 <button
                   type="button"
                   class="cancel-btn"
-                  onclick="closeAddMemberModal()"
+                  data-action="close-add-modal"
                 >
                   <i class="fas fa-times"></i>
                   Cancel

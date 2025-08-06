@@ -28,6 +28,17 @@ class MealMateProfile {
             if (response.ok) {
                 this.user = await response.json();
                 this.user.userId = userId; // Store userId for later use
+                
+                // Ensure compatibility with dashboard.js naming conventions
+                if (this.user.first_name && this.user.last_name) {
+                    this.user.fullName = `${this.user.first_name} ${this.user.last_name}`;
+                    this.user.firstName = this.user.first_name;
+                } else if (this.user.fullname) {
+                    this.user.fullName = this.user.fullname;
+                    // Extract firstName from fullname if needed
+                    this.user.firstName = this.user.fullname.split(' ')[0];
+                }
+                
                 localStorage.setItem('currentUser', JSON.stringify(this.user));
             } else if (response.status === 401) {
                 // User not authenticated, redirect to login
@@ -41,7 +52,11 @@ class MealMateProfile {
             this.user = {
                 id: 1,
                 userId: 1,
+                first_name: 'Test',
+                last_name: 'User',
                 fullname: 'Test User',
+                fullName: 'Test User', // Dashboard.js compatibility
+                firstName: 'Test', // Dashboard.js compatibility
                 email: 'test@example.com',
                 phone: '+1234567890',
                 created_at: '2024-01-15T10:30:00Z'
@@ -53,12 +68,15 @@ class MealMateProfile {
     updateProfileDisplay() {
         if (!this.user) return;
 
+        // Remove conflicting header updates - dashboard.js handles these
+        // Commenting out to avoid conflicts with dashboard.js user display logic
+        /*
         // Update header user info
         const userNameElement = document.querySelector('.user-name');
         const avatarLetterElement = document.querySelector('.avatar-letter');
         
         if (userNameElement) {
-            userNameElement.textContent = this.user.fullname || 'User';
+            userNameElement.textContent =this.user.first_name || this.user.fullname || 'User';
         }
 
         // Update user avatar with first letter
@@ -66,6 +84,7 @@ class MealMateProfile {
             const firstLetter = this.user.fullname.charAt(0).toUpperCase();
             avatarLetterElement.textContent = firstLetter;
         }
+        */
 
         // Update profile header
         const profileName = document.querySelector('.profile-name');
@@ -86,7 +105,8 @@ class MealMateProfile {
 
     updatePersonalInfo() {
         const elements = {
-            '.user-fullname': this.user.fullname || 'Not provided',
+            '.user-firstname': this.user.first_name || 'Not provided',
+            '.user-lastname': this.user.last_name || 'Not provided',
             '.user-username': this.user.username || 'Not provided',
             '.user-email': this.user.email || 'Not provided',
             '.user-phone': this.user.phone || 'Not provided',
@@ -188,6 +208,15 @@ class MealMateProfile {
             console.log('Change password button not found');
         }
 
+        // Delete account button
+        const deleteAccountBtn = document.querySelector('.setting-btn[data-action="delete-account"]');
+        if (deleteAccountBtn) {
+            deleteAccountBtn.addEventListener('click', () => this.openDeleteAccountModal());
+            console.log('Delete account button listener attached');
+        } else {
+            console.log('Delete account button not found');
+        }
+
         // Modal close buttons
         const closeButtons = document.querySelectorAll('.close');
         closeButtons.forEach(btn => {
@@ -217,6 +246,11 @@ class MealMateProfile {
             passwordForm.addEventListener('submit', (e) => this.handlePasswordChange(e));
         }
 
+        const deleteAccountForm = document.getElementById('deleteAccountForm');
+        if (deleteAccountForm) {
+            deleteAccountForm.addEventListener('submit', (e) => this.handleAccountDelete(e));
+        }
+
         // Logout functionality
         const logoutBtn = document.querySelector('.logout-btn:not([href])');
         if (logoutBtn) {
@@ -238,7 +272,8 @@ class MealMateProfile {
         // Populate form with current user data
         const form = document.getElementById('editProfileForm');
         if (form && this.user) {
-            form.editFullName.value = this.user.fullname || '';
+            form.editFirstName.value = this.user.first_name || '';
+            form.editLastName.value = this.user.last_name || '';
             form.editUsername.value = this.user.username || '';
             form.editEmail.value = this.user.email || '';
             form.editPhone.value = this.user.phone || '';
@@ -264,6 +299,23 @@ class MealMateProfile {
         }
     }
 
+    openDeleteAccountModal() {
+        console.log('Opening delete account modal');
+        const modal = document.getElementById('deleteAccountModal');
+        if (modal) {
+            modal.style.display = 'block';
+            console.log('Delete account modal opened');
+            // Clear form
+            const form = document.getElementById('deleteAccountForm');
+            if (form) {
+                form.reset();
+                console.log('Delete account form reset');
+            }
+        } else {
+            console.log('Delete account modal not found');
+        }
+    }
+
     async handleProfileUpdate(e) {
         e.preventDefault();
         const form = e.target;
@@ -275,8 +327,12 @@ class MealMateProfile {
         saveBtn.textContent = 'Saving...';
         saveBtn.disabled = true;
         
+        const firstName = formData.get('firstName');
+        const lastName = formData.get('lastName');
+        const fullname = `${firstName} ${lastName}`.trim();
+        
         const updatedData = {
-            fullname: formData.get('fullName'),
+            fullname: fullname,
             username: formData.get('username'),
             email: formData.get('email'),
             phone: formData.get('phone')
@@ -300,7 +356,15 @@ class MealMateProfile {
 
             if (response.ok && responseData.success) {
                 // Update local user data
-                Object.assign(this.user, updatedData);
+                this.user.first_name = firstName;
+                this.user.last_name = lastName;
+                this.user.fullname = fullname;
+                this.user.fullName = fullname; // Dashboard.js compatibility
+                this.user.firstName = firstName; // Dashboard.js compatibility
+                this.user.username = updatedData.username;
+                this.user.email = updatedData.email;
+                this.user.phone = updatedData.phone;
+                
                 localStorage.setItem('currentUser', JSON.stringify(this.user));
                 
                 // Update display
@@ -378,6 +442,73 @@ class MealMateProfile {
             // Reset button state
             saveBtn.textContent = originalText;
             saveBtn.disabled = false;
+        }
+    }
+
+    async handleAccountDelete(e) {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        const deleteBtn = form.querySelector('.delete-btn');
+        const originalText = deleteBtn.textContent;
+        
+        const password = formData.get('password');
+        const confirmDelete = form.querySelector('#confirmDelete').checked;
+
+        if (!confirmDelete) {
+            this.showError('Please confirm that you understand this action is permanent');
+            return;
+        }
+
+        if (!password) {
+            this.showError('Please enter your password to confirm deletion');
+            return;
+        }
+
+        // Show loading state
+        deleteBtn.textContent = 'Deleting Account...';
+        deleteBtn.disabled = true;
+
+        const deleteData = {
+            password: password
+        };
+
+        try {
+            const userId = this.user.userId || this.user.id || 1;
+            console.log('Deleting account for user ID:', userId);
+            
+            const response = await fetch(`/api/delete-account?userId=${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(deleteData)
+            });
+
+            const responseData = await response.json();
+            console.log('Account deletion response:', responseData);
+
+            if (response.ok && responseData.success) {
+                // Clear local storage
+                localStorage.removeItem('currentUser');
+                
+                // Show success message
+                this.showSuccess('Account deleted successfully. Redirecting...');
+                
+                // Redirect to index.html after a short delay
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 2000);
+            } else {
+                throw new Error(responseData.message || 'Failed to delete account');
+            }
+        } catch (error) {
+            console.error('Account deletion error:', error);
+            this.showError(error.message || 'Failed to delete account. Please try again.');
+        } finally {
+            // Reset button state
+            deleteBtn.textContent = originalText;
+            deleteBtn.disabled = false;
         }
     }
 
