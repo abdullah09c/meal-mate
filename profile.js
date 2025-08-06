@@ -174,12 +174,18 @@ class MealMateProfile {
         const editBtn = document.querySelector('.edit-btn[data-section="personal"]');
         if (editBtn) {
             editBtn.addEventListener('click', () => this.openEditModal());
+            console.log('Edit profile button listener attached');
+        } else {
+            console.log('Edit profile button not found');
         }
 
         // Change password button
         const changePasswordBtn = document.querySelector('.setting-btn[data-action="change-password"]');
         if (changePasswordBtn) {
             changePasswordBtn.addEventListener('click', () => this.openPasswordModal());
+            console.log('Change password button listener attached');
+        } else {
+            console.log('Change password button not found');
         }
 
         // Modal close buttons
@@ -242,12 +248,19 @@ class MealMateProfile {
     }
 
     openPasswordModal() {
+        console.log('Opening password modal');
         const modal = document.getElementById('passwordModal');
         if (modal) {
             modal.style.display = 'block';
+            console.log('Password modal opened');
             // Clear form
             const form = document.getElementById('changePasswordForm');
-            if (form) form.reset();
+            if (form) {
+                form.reset();
+                console.log('Password form reset');
+            }
+        } else {
+            console.log('Password modal not found');
         }
     }
 
@@ -255,6 +268,12 @@ class MealMateProfile {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+        const saveBtn = form.querySelector('.save-btn');
+        const originalText = saveBtn.textContent;
+        
+        // Show loading state
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
         
         const updatedData = {
             fullname: formData.get('fullName'),
@@ -264,7 +283,11 @@ class MealMateProfile {
         };
 
         try {
-            const response = await fetch('/api/update-profile', {
+            const userId = this.user.userId || this.user.id || 1;
+            console.log('Updating profile for user ID:', userId);
+            console.log('Update data:', updatedData);
+            
+            const response = await fetch(`/api/update-profile?userId=${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -272,7 +295,10 @@ class MealMateProfile {
                 body: JSON.stringify(updatedData)
             });
 
-            if (response.ok) {
+            const responseData = await response.json();
+            console.log('Server response:', responseData);
+
+            if (response.ok && responseData.success) {
                 // Update local user data
                 Object.assign(this.user, updatedData);
                 localStorage.setItem('currentUser', JSON.stringify(this.user));
@@ -285,11 +311,15 @@ class MealMateProfile {
                 
                 this.showSuccess('Profile updated successfully!');
             } else {
-                throw new Error('Failed to update profile');
+                throw new Error(responseData.message || 'Failed to update profile');
             }
         } catch (error) {
             console.error('Profile update error:', error);
-            this.showError('Failed to update profile. Please try again.');
+            this.showError(error.message || 'Failed to update profile. Please try again.');
+        } finally {
+            // Reset button state
+            saveBtn.textContent = originalText;
+            saveBtn.disabled = false;
         }
     }
 
@@ -297,6 +327,8 @@ class MealMateProfile {
         e.preventDefault();
         const form = e.target;
         const formData = new FormData(form);
+        const saveBtn = form.querySelector('.save-btn');
+        const originalText = saveBtn.textContent;
         
         const newPassword = formData.get('newPassword');
         const confirmPassword = formData.get('confirmPassword');
@@ -306,10 +338,9 @@ class MealMateProfile {
             return;
         }
 
-        if (newPassword.length < 6) {
-            this.showError('Password must be at least 6 characters long');
-            return;
-        }
+        // Show loading state
+        saveBtn.textContent = 'Updating...';
+        saveBtn.disabled = true;
 
         const passwordData = {
             currentPassword: formData.get('currentPassword'),
@@ -317,7 +348,11 @@ class MealMateProfile {
         };
 
         try {
-            const response = await fetch('/api/change-password', {
+            const userId = this.user.userId || this.user.id || 1;
+            console.log('Changing password for user ID:', userId);
+            console.log('Current user data:', this.user);
+            
+            const response = await fetch(`/api/change-password?userId=${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -325,28 +360,33 @@ class MealMateProfile {
                 body: JSON.stringify(passwordData)
             });
 
-            if (response.ok) {
+            const responseData = await response.json();
+            console.log('Password change response status:', response.status);
+            console.log('Password change response:', responseData);
+
+            if (response.ok && responseData.success) {
                 document.getElementById('passwordModal').style.display = 'none';
                 form.reset();
                 this.showSuccess('Password changed successfully!');
             } else {
-                const error = await response.json();
-                throw new Error(error.message || 'Failed to change password');
+                throw new Error(responseData.message || 'Failed to change password');
             }
         } catch (error) {
             console.error('Password change error:', error);
             this.showError(error.message || 'Failed to change password. Please try again.');
+        } finally {
+            // Reset button state
+            saveBtn.textContent = originalText;
+            saveBtn.disabled = false;
         }
     }
 
     handleLogout() {
-        if (confirm('Are you sure you want to logout?')) {
-            // Clear local storage
-            localStorage.removeItem('currentUser');
-            
-            // Redirect to login page
-            window.location.href = '/login';
-        }
+        // Clear local storage
+        localStorage.removeItem('currentUser');
+        
+        // Redirect to login page
+        window.location.href = '/login';
     }
 
     formatDate(dateString) {

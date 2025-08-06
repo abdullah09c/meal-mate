@@ -1,4 +1,30 @@
 // Enhanced Dashboard JavaScript
+
+// Utility function to get current user ID
+function getCurrentUserId() {
+    // First try to get from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const userIdFromUrl = urlParams.get('userId');
+    
+    if (userIdFromUrl) {
+        return userIdFromUrl;
+    }
+    
+    // Try to get from localStorage
+    const currentUser = localStorage.getItem('currentUser');
+    if (currentUser) {
+        try {
+            const user = JSON.parse(currentUser);
+            return user.id || user.userId || 1;
+        } catch (e) {
+            console.warn('Error parsing current user from localStorage:', e);
+        }
+    }
+    
+    // Default to user ID 1
+    return 1;
+}
+
 class ModernDashboard {
     constructor() {
         this.charts = {};
@@ -11,6 +37,7 @@ class ModernDashboard {
     }
 
     async init() {
+        this.getUserInfo(); // Add user info handling
         this.setupEventListeners();
         this.initializeCharts();
         await this.loadDashboardData();
@@ -19,6 +46,45 @@ class ModernDashboard {
         this.loadTopSpenders();
         this.updateInsights();
         this.startRealTimeUpdates();
+    }
+
+    getUserInfo() {
+        const urlParams = new URLSearchParams(window.location.search);
+        // First try to get userId from URL
+        this.userId = urlParams.get('userId') || 1;
+        
+        // Try to get user data from localStorage
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            try {
+                const user = JSON.parse(currentUser);
+                this.userId = user.id || this.userId;
+                this.userName = user.fullName || user.username || 'User';
+            } catch (e) {
+                console.warn('Error parsing current user from localStorage:', e);
+                this.userName = urlParams.get('user') || 'User';
+            }
+        } else {
+            this.userName = urlParams.get('user') || 'User';
+        }
+        
+        // Update user name in the modern header
+        const userNameElement = document.querySelector('.user-name');
+        if (userNameElement) {
+            userNameElement.textContent = this.userName;
+        }
+
+        // Update user avatar to show first letter of name
+        const avatarLetterElement = document.querySelector('.avatar-letter');
+        if (avatarLetterElement && this.userName !== 'User') {
+            avatarLetterElement.textContent = this.userName.charAt(0).toUpperCase();
+        }
+
+        // Update dynamic user name in welcome section
+        const userNameDynamicElement = document.querySelector('.user-name-dynamic');
+        if (userNameDynamicElement) {
+            userNameDynamicElement.textContent = this.userName;
+        }
     }
 
     setupEventListeners() {
@@ -567,23 +633,28 @@ class ModernDashboard {
 
 // Quick action functions
 function quickAddExpense() {
-    window.location.href = 'bazar.html?action=add';
+    const userId = getCurrentUserId();
+    window.location.href = `bazar.html?userId=${userId}&action=add`;
 }
 
 function viewReports() {
-    window.location.href = 'reports.html';
+    const userId = getCurrentUserId();
+    window.location.href = `reports.html?userId=${userId}`;
 }
 
 function addBazarRecord() {
-    window.location.href = 'bazar.html?action=add';
+    const userId = getCurrentUserId();
+    window.location.href = `bazar.html?userId=${userId}&action=add`;
 }
 
 function addDeposit() {
-    window.location.href = 'deposit.html?action=add';
+    const userId = getCurrentUserId();
+    window.location.href = `deposit.html?userId=${userId}&action=add`;
 }
 
 function manageMembers() {
-    window.location.href = 'members.html';
+    const userId = getCurrentUserId();
+    window.location.href = `members.html?userId=${userId}`;
 }
 
 function manageBudget() {
@@ -591,15 +662,45 @@ function manageBudget() {
 }
 
 function viewAllActivity() {
-    window.location.href = 'reports.html?tab=activity';
+    const userId = getCurrentUserId();
+    window.location.href = `reports.html?userId=${userId}&tab=activity`;
 }
 
 // Initialize enhanced dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (document.querySelector('.welcome-section')) {
-        new ModernDashboard();
+        // Only initialize ModernDashboard if MealMateDashboard is not already handling the page
+        if (!window.mealMateDashboard) {
+            new ModernDashboard();
+        }
+        
+        // Update navigation links with current user ID
+        updateNavigationLinksWithUserId();
     }
 });
+
+// Function to update navigation links with user ID
+function updateNavigationLinksWithUserId() {
+    const userId = getCurrentUserId();
+    
+    // List of pages that should include userId
+    const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html'];
+    
+    // Update all navigation links
+    const navLinks = document.querySelectorAll('a[href]');
+    navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        
+        // Check if it's one of our pages that needs userId
+        pagesWithUserId.forEach(page => {
+            if (href === page || href.includes(page)) {
+                const url = new URL(link.href, window.location.origin);
+                url.searchParams.set('userId', userId);
+                link.href = url.toString();
+            }
+        });
+    });
+}
 
 // Navigation functionality
 document.addEventListener('DOMContentLoaded', function() {

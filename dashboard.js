@@ -50,6 +50,12 @@ class MealMateDashboard {
         if (welcomeElement) {
             welcomeElement.textContent = this.userName;
         }
+
+        // Update dynamic user name in welcome section
+        const userNameDynamicElement = document.querySelector('.user-name-dynamic');
+        if (userNameDynamicElement) {
+            userNameDynamicElement.textContent = this.userName;
+        }
     }
 
     async loadDashboardData() {
@@ -249,14 +255,12 @@ class MealMateDashboard {
     }
 
     logout() {
-        if (confirm('Are you sure you want to logout?')) {
-            // Clear any stored session data
-            localStorage.removeItem('userToken');
-            sessionStorage.clear();
-            
-            // Redirect to home page
-            window.location.href = '/';
-        }
+        // Clear any stored session data
+        localStorage.removeItem('userToken');
+        sessionStorage.clear();
+        
+        // Redirect to home page
+        window.location.href = '/';
     }
 
     showError(message) {
@@ -305,7 +309,7 @@ class MealMateDashboard {
 // Initialize dashboard when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     if (document.querySelector('.modern-dashboard')) {
-        new MealMateDashboard();
+        window.mealMateDashboard = new MealMateDashboard();
     }
     
     // Initialize member management if on members page

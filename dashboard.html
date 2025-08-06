@@ -514,7 +514,51 @@
 
     <!-- Chart.js for enhanced charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Main functionality -->
+    <script src="main.js"></script>
     <!-- Enhanced dashboard functionality -->
     <script src="dashboard-enhanced.js"></script>
+    
+    <!-- Ensure username is updated from database -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to update username from localStorage or URL
+            function updateUserName() {
+                const urlParams = new URLSearchParams(window.location.search);
+                let userName = 'User'; // Default fallback
+                
+                // Try to get user data from localStorage first
+                const currentUser = localStorage.getItem('currentUser');
+                if (currentUser) {
+                    try {
+                        const user = JSON.parse(currentUser);
+                        userName = user.fullName || user.username || 'User';
+                    } catch (e) {
+                        console.warn('Error parsing current user from localStorage:', e);
+                    }
+                }
+                
+                // Update all user name elements
+                const userNameElements = document.querySelectorAll('.user-name, .user-name-dynamic');
+                userNameElements.forEach(element => {
+                    if (element) {
+                        element.textContent = userName;
+                    }
+                });
+                
+                // Update avatar letter
+                const avatarLetterElement = document.querySelector('.avatar-letter');
+                if (avatarLetterElement && userName !== 'User') {
+                    avatarLetterElement.textContent = userName.charAt(0).toUpperCase();
+                }
+            }
+            
+            // Update immediately
+            updateUserName();
+            
+            // Also update after a short delay to ensure all scripts have loaded
+            setTimeout(updateUserName, 100);
+        });
+    </script>
   </body>
 </html>

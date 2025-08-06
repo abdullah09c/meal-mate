@@ -617,6 +617,12 @@ app.put('/api/change-password', async (req, res) => {
     const userId = req.query.userId || 1; // In a real app, get from session
     const { currentPassword, newPassword } = req.body;
     
+    console.log('Password change request for user ID:', userId);
+    console.log('Request body contains:', { 
+      hasCurrentPassword: !!currentPassword, 
+      hasNewPassword: !!newPassword 
+    });
+    
     // Validation
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ 
@@ -625,29 +631,32 @@ app.put('/api/change-password', async (req, res) => {
       });
     }
     
-    if (newPassword.length < 6) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'New password must be at least 6 characters long' 
-      });
-    }
-    
     // Get current user
     const getUserQuery = 'SELECT password_hash FROM users WHERE id = ?';
     db.query(getUserQuery, [userId], async (err, results) => {
       if (err) {
         console.error('Database error:', err);
-        return res.status(500).json({ message: 'Database error' });
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Database error' 
+        });
       }
       
+      console.log('User query results:', results.length > 0 ? 'User found' : 'User not found');
+      
       if (results.length === 0) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ 
+          success: false, 
+          message: 'User not found' 
+        });
       }
       
       const user = results[0];
       
       // Verify current password
       const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password_hash);
+      console.log('Current password valid:', isCurrentPasswordValid);
+      
       if (!isCurrentPasswordValid) {
         return res.status(400).json({ 
           success: false, 
@@ -658,15 +667,20 @@ app.put('/api/change-password', async (req, res) => {
       // Hash new password
       const saltRounds = 10;
       const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+      console.log('New password hashed successfully');
       
       // Update password
       const updateQuery = 'UPDATE users SET password_hash = ? WHERE id = ?';
       db.query(updateQuery, [newPasswordHash, userId], (err, results) => {
         if (err) {
-          console.error('Database error:', err);
-          return res.status(500).json({ message: 'Failed to change password' });
+          console.error('Password update error:', err);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Failed to change password' 
+          });
         }
         
+        console.log('Password updated successfully for user ID:', userId);
         res.json({ 
           success: true, 
           message: 'Password changed successfully' 
@@ -675,8 +689,11 @@ app.put('/api/change-password', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('Server error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Server error in change password:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Server error' 
+    });
   }
 });
 

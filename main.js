@@ -288,7 +288,6 @@ function initializeLoginPage() {
         // Store user data in localStorage for session management
         localStorage.setItem('currentUser', JSON.stringify(result.user));
         
-        alert('Login successful! Welcome to MealMate.');
         // Redirect to dashboard with userId
         window.location.href = `/dashboard?userId=${result.user.id}`;
       } else {
@@ -410,9 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
   logoutButtons.forEach(button => {
     button.addEventListener('click', function(e) {
       e.preventDefault();
-      if (confirm('Are you sure you want to logout?')) {
-        logout();
-      }
+      logout();
     });
   });
   
