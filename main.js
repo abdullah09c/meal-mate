@@ -199,7 +199,7 @@ function initializeSignupPage() {
       const result = await response.json();
       
       if (result.success) {
-        alert('Account created successfully! Welcome to MealMate.');
+        // alert('Account created successfully! Welcome to MealMate.');
         // Create user object for localStorage
         const newUser = {
           id: result.userId,

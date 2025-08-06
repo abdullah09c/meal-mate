@@ -1078,7 +1078,12 @@ function setupAddMemberButtons() {
 
 async function loadMembersFromDatabase() {
   try {
-    const response = await fetch("/api/members?userId=1");
+    // Get current user ID from localStorage or URL params
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = currentUser.id || urlParams.get('userId') || 1;
+    
+    const response = await fetch(`/api/members?userId=${userId}`);
     const data = await response.json();
 
     if (data.success) {
@@ -1193,8 +1198,13 @@ async function addNewMember(data) {
       '<i class="fas fa-spinner fa-spin"></i> Adding Member...';
     submitBtn.disabled = true;
 
+    // Get current user ID from localStorage or URL params
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = currentUser.id || urlParams.get('userId') || 1;
+
     // Send data to backend
-    const response = await fetch("/api/members?userId=1", {
+    const response = await fetch(`/api/members?userId=${userId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1256,8 +1266,13 @@ async function removeMemberById(memberId) {
     // Get password from form
     const password = document.getElementById("confirmPassword").value;
 
+    // Get current user ID from localStorage or URL params
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = currentUser.id || urlParams.get('userId') || 1;
+
     // Send delete request to backend
-    const response = await fetch(`/api/members/${memberId}?userId=1`, {
+    const response = await fetch(`/api/members/${memberId}?userId=${userId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
