@@ -58,13 +58,10 @@ db.connect((err) => {
   const createMembersTable = `
     CREATE TABLE IF NOT EXISTS members (
       id INT AUTO_INCREMENT PRIMARY KEY,
+      user_id INT NOT NULL,
       name VARCHAR(100) NOT NULL,
-      role ENUM('admin', 'member', 'guest') DEFAULT 'member',
-      initial_deposit DECIMAL(10,2) DEFAULT 0.00,
       join_date DATE NOT NULL,
-      user_id INT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      is_active BOOLEAN DEFAULT TRUE,
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )
   `;
@@ -707,13 +704,10 @@ app.get('/api/members', (req, res) => {
     SELECT 
       id, 
       name, 
-      role, 
-      initial_deposit, 
       join_date,
-      created_at,
-      is_active
+      created_at
     FROM members 
-    WHERE user_id = ? AND is_active = TRUE
+    WHERE user_id = ?
     ORDER BY created_at DESC
   `;
   
@@ -737,13 +731,13 @@ app.get('/api/members', (req, res) => {
 app.post('/api/members', async (req, res) => {
   try {
     const userId = req.query.userId || 1;
-    const { name, role, joinDate, initialDeposit, adminPassword } = req.body;
+    const { name, joinDate, adminPassword } = req.body;
     
     // Validation
-    if (!name || !role || !joinDate || initialDeposit === undefined || !adminPassword) {
+    if (!name || !joinDate || !adminPassword) {
       return res.status(400).json({ 
         success: false, 
-        message: 'All fields are required' 
+        message: 'Name, join date, and password are required' 
       });
     }
     
@@ -777,36 +771,16 @@ app.post('/api/members', async (req, res) => {
       
       // Insert new member
       const insertMemberQuery = `
-        INSERT INTO members (name, role, initial_deposit, join_date, user_id) 
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO members (user_id, name, join_date) 
+        VALUES (?, ?, ?)
       `;
       
-      db.query(insertMemberQuery, [name, role, initialDeposit, joinDate, userId], (insertErr, insertResults) => {
+      db.query(insertMemberQuery, [userId, name, joinDate], (insertErr, insertResults) => {
         if (insertErr) {
           console.error('Error inserting member:', insertErr);
           return res.status(500).json({ 
             success: false, 
             message: 'Error adding member' 
-          });
-        }
-        
-        // If initial deposit > 0, add it to deposits table
-        if (parseFloat(initialDeposit) > 0) {
-          const insertDepositQuery = `
-            INSERT INTO deposits (user_id, member_id, amount, description, deposit_date) 
-            VALUES (?, ?, ?, ?, ?)
-          `;
-          
-          db.query(insertDepositQuery, [
-            userId, 
-            insertResults.insertId, 
-            initialDeposit, 
-            'Initial deposit', 
-            joinDate
-          ], (depositErr) => {
-            if (depositErr) {
-              console.error('Error adding initial deposit:', depositErr);
-            }
           });
         }
         
@@ -890,8 +864,8 @@ app.delete('/api/members/:memberId', async (req, res) => {
         
         const memberName = checkResults[0].name;
         
-        // Soft delete member (set is_active to false)
-        const deleteMemberQuery = 'UPDATE members SET is_active = FALSE WHERE id = ? AND user_id = ?';
+        // Delete member permanently
+        const deleteMemberQuery = 'DELETE FROM members WHERE id = ? AND user_id = ?';
         db.query(deleteMemberQuery, [memberId, userId], (deleteErr) => {
           if (deleteErr) {
             console.error('Error deleting member:', deleteErr);

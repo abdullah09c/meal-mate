@@ -6,10 +6,7 @@
     <title>MealMate - Member Management</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="stylesheet" href="dashboard-styles.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
   </head>
   <body>
     <div class="modern-dashboard">
@@ -101,6 +98,12 @@
                 <p>Manage family and group members effectively</p>
               </div>
             </div>
+            <div class="header-actions">
+              <button class="add-member-btn">
+                <i class="fas fa-user-plus"></i>
+                Add Member
+              </button>
+            </div>
           </div>
 
           <!-- Members Grid -->
@@ -166,7 +169,7 @@
             </div>
             <h3>No Members Yet</h3>
             <p>Start by adding your first family or group member</p>
-            <button class="add-member-btn" onclick="openAddMemberModal()">
+            <button class="add-member-btn">
               <i class="fas fa-user-plus"></i>
               Add First Member
             </button>
@@ -181,7 +184,7 @@
                 <i class="fas fa-user-plus"></i>
                 Add New Member
               </h2>
-              <button class="close-btn" onclick="closeAddMemberModal()">
+              <button class="close-btn" data-action="close-add-modal">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -210,19 +213,6 @@
 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="memberRole">
-                      <i class="fas fa-user-tag"></i>
-                      Role
-                    </label>
-                    <select id="memberRole" name="memberRole" required>
-                      <option value="">Select Role</option>
-                      <option value="admin">Admin</option>
-                      <option value="member">Member</option>
-                      <option value="guest">Guest</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group">
                     <label for="joinDate">
                       <i class="fas fa-calendar"></i>
                       Join Date
@@ -231,31 +221,6 @@
                   </div>
                 </div>
               </div>
-
-              <div class="form-section">
-                <h3 class="section-title">
-                  <i class="fas fa-money-bill-wave"></i>
-                  Financial Information
-                </h3>
-
-                <div class="form-group">
-                  <label for="initialDeposit">
-                    <i class="fas fa-piggy-bank"></i>
-                    Initial Deposit (৳)
-                  </label>
-                  <input
-                    type="number"
-                    id="initialDeposit"
-                    name="initialDeposit"
-                    required
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                  />
-                  <div class="error-message" id="deposit-error"></div>
-                </div>
-              </div>
-
               <div class="form-section">
                 <h3 class="section-title">
                   <i class="fas fa-shield-alt"></i>
@@ -312,7 +277,7 @@
                 <i class="fas fa-user-minus"></i>
                 Remove Member
               </h2>
-              <button class="close-btn" onclick="closeRemoveMemberModal()">
+              <button class="close-btn" data-action="close-remove-modal">
                 <i class="fas fa-times"></i>
               </button>
             </div>
@@ -358,7 +323,7 @@
                   <button
                     type="button"
                     class="cancel-btn"
-                    onclick="closeRemoveMemberModal()"
+                    data-action="close-remove-modal"
                   >
                     <i class="fas fa-times"></i>
                     Cancel

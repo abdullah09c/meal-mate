@@ -339,8 +339,39 @@ function initializeMemberManagement() {
     setupAddMemberForm();
     setupRemoveMemberForm();
     
+    // Setup Add Member button click handlers
+    setupAddMemberButtons();
+    
     // Load existing members from database
     loadMembersFromDatabase();
+}
+
+function setupAddMemberButtons() {
+    // Find all add member buttons and add click handlers
+    const addMemberButtons = document.querySelectorAll('.add-member-btn');
+    addMemberButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            openAddMemberModal();
+        });
+    });
+    
+    // Setup modal close buttons
+    const closeButtons = document.querySelectorAll('[data-action="close-add-modal"]');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeAddMemberModal();
+        });
+    });
+    
+    const closeRemoveButtons = document.querySelectorAll('[data-action="close-remove-modal"]');
+    closeRemoveButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            closeRemoveMemberModal();
+        });
+    });
 }
 
 async function loadMembersFromDatabase() {
@@ -352,8 +383,6 @@ async function loadMembersFromDatabase() {
             membersData = data.members.map(member => ({
                 id: member.id.toString(),
                 name: member.name,
-                role: member.role,
-                deposit: member.initial_deposit,
                 joinDate: member.join_date,
                 avatar: generateAvatar(member.name)
             }));
@@ -382,9 +411,7 @@ function setupAddMemberForm() {
         // Get form data
         const formData = {
             name: document.getElementById('memberName').value.trim(),
-            role: document.getElementById('memberRole').value,
             joinDate: document.getElementById('joinDate').value,
-            deposit: parseFloat(document.getElementById('initialDeposit').value),
             password: document.getElementById('adminPassword').value
         };
         
@@ -435,16 +462,6 @@ function validateAddMemberForm(data) {
         isValid = false;
     }
     
-    if (!data.role) {
-        showFormError('name-error', 'Please select a role');
-        isValid = false;
-    }
-    
-    if (isNaN(data.deposit) || data.deposit < 0) {
-        showFormError('deposit-error', 'Please enter a valid deposit amount');
-        isValid = false;
-    }
-    
     if (!data.password) {
         showFormError('password-error', 'Please enter your password for confirmation');
         isValid = false;
@@ -475,9 +492,7 @@ async function addNewMember(data) {
             },
             body: JSON.stringify({
                 name: data.name,
-                role: data.role,
                 joinDate: data.joinDate,
-                initialDeposit: data.deposit,
                 adminPassword: data.password
             })
         });
@@ -594,8 +609,6 @@ function renderMembers() {
             </div>
             <div class="member-info">
                 <h3 class="member-name">${member.name}</h3>
-                <p class="member-role">${capitalizeFirst(member.role)}</p>
-                <p class="member-deposit">Initial: ৳${member.deposit.toLocaleString()}</p>
                 <p class="member-joined">Joined: ${formatDisplayDate(member.joinDate)}</p>
             </div>
             <div class="member-actions">
@@ -612,6 +625,7 @@ function renderMembers() {
 
 // Modal Functions
 function openAddMemberModal() {
+    console.log('Opening add member modal...'); // Debug log
     const modal = document.getElementById('addMemberModal');
     if (modal) {
         modal.classList.add('active');

@@ -2352,7 +2352,7 @@ body:has(.modern-dashboard) {
 .members-header {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     margin-bottom: 2rem;
     background: white;
     padding: 2rem;
