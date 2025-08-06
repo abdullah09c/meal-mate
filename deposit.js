@@ -17,7 +17,7 @@ async function initializeDepositPage() {
         }
 
         // Update navigation links with current user ID
-        updateNavigationLinks(currentUserId);
+        updateNavigationLinks();
         
         // Load user profile info for header
         await loadUserProfile();
@@ -42,10 +42,10 @@ async function initializeDepositPage() {
 }
 
 function initializeEventListeners() {
-    // Form submission
+    // Form submission - unified handler for both add and edit
     const form = document.getElementById('addDepositForm');
     if (form) {
-        form.addEventListener('submit', handleAddDeposit);
+        form.addEventListener('submit', handleFormSubmit);
     }
     
     // Time filter
@@ -99,9 +99,10 @@ function updateUserDisplay(user) {
 
 async function loadMembers() {
     try {
-        const response = await fetch('/api/members');
+        const response = await fetch(`/api/members?userId=${currentUserId}`);
         if (response.ok) {
-            members = await response.json();
+            const data = await response.json();
+            members = data.success ? data.members : [];
             populateMemberDropdown();
         }
     } catch (error) {
@@ -129,9 +130,10 @@ function populateMemberDropdown() {
 
 async function loadDeposits() {
     try {
-        const response = await fetch('/api/deposits');
+        const response = await fetch(`/api/deposits?userId=${currentUserId}`);
         if (response.ok) {
-            deposits = await response.json();
+            const data = await response.json();
+            deposits = data.success ? data.deposits : [];
             displayDeposits(deposits);
             updateDepositSummary(deposits);
         } else {
@@ -290,21 +292,45 @@ function filterDeposits() {
 // Modal functions
 function openAddDepositModal() {
     const modal = document.getElementById('addDepositModal');
-    modal.style.display = 'flex';
+    if (modal) {
+        modal.classList.add('active');
+    }
     
-    // Reset form
-    document.getElementById('addDepositForm').reset();
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('depositDate').value = today;
-    
-    // Clear any error messages
-    const errorElements = document.querySelectorAll('.error-message');
-    errorElements.forEach(el => el.textContent = '');
+    // Only reset form if not in edit mode
+    const form = document.getElementById('addDepositForm');
+    if (!form.hasAttribute('data-edit-id')) {
+        // Reset form
+        form.reset();
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('depositDate').value = today;
+        
+        // Clear any error messages
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(el => el.textContent = '');
+    }
 }
 
 function closeAddDepositModal() {
     const modal = document.getElementById('addDepositModal');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.classList.remove('active');
+    }
+    
+    // Reset form to add mode when closing
+    resetFormToAddMode();
+}
+
+async function handleFormSubmit(event) {
+    event.preventDefault();
+    
+    const form = event.target;
+    const isEditMode = form.hasAttribute('data-edit-id');
+    
+    if (isEditMode) {
+        await handleEditDeposit(event);
+    } else {
+        await handleAddDeposit(event);
+    }
 }
 
 async function handleAddDeposit(event) {
@@ -394,7 +420,10 @@ async function deleteDeposit(depositId) {
 function editDeposit(depositId) {
     // Find the deposit
     const deposit = deposits.find(d => d.id === depositId);
-    if (!deposit) return;
+    if (!deposit) {
+        showNotification('Deposit not found', 'error');
+        return;
+    }
     
     // Fill the form with existing data
     document.getElementById('depositAmount').value = deposit.amount;
@@ -420,10 +449,6 @@ function editDeposit(depositId) {
     
     // Open modal
     openAddDepositModal();
-    
-    // Override form submission
-    form.removeEventListener('submit', handleAddDeposit);
-    form.addEventListener('submit', handleEditDeposit);
 }
 
 async function handleEditDeposit(event) {
@@ -473,6 +498,11 @@ function resetFormToAddMode() {
     const form = document.getElementById('addDepositForm');
     form.removeAttribute('data-edit-id');
     
+    // Reset form
+    form.reset();
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('depositDate').value = today;
+    
     // Reset modal title
     document.querySelector('.modal-header h2').innerHTML = `
         <i class="fas fa-plus"></i>
@@ -485,9 +515,9 @@ function resetFormToAddMode() {
         Add Deposit
     `;
     
-    // Reset form submission handler
-    form.removeEventListener('submit', handleEditDeposit);
-    form.addEventListener('submit', handleAddDeposit);
+    // Clear any error messages
+    const errorElements = document.querySelectorAll('.error-message');
+    errorElements.forEach(el => el.textContent = '');
 }
 
 function showNotification(message, type = 'info') {

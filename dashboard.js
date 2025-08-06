@@ -822,8 +822,8 @@ class MealMateDashboard {
   }
 
   showAddDepositModal() {
-    // This would open a modal to add a deposit
-    alert("Add Deposit functionality - Coming soon!");
+    // Redirect to deposit page for full deposit management
+    window.location.href = "/deposit.html";
   }
 
   logout() {

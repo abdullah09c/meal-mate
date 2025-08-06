@@ -4041,13 +4041,11 @@ body.modal-open {
 }
 
 .action-btn.primary {
-    background: rgba(255, 255, 255, 0.2);
     color: white;
     backdrop-filter: blur(10px);
 }
 
 .action-btn.secondary {
-    background: rgba(255, 255, 255, 0.1);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.3);
 }

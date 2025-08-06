@@ -1109,14 +1109,17 @@ app.put('/api/members/:memberId', async (req, res) => {
 
 // Get all deposits
 app.get('/api/deposits', (req, res) => {
+  const userId = req.query.userId || 1;
+  
   const query = `
     SELECT d.*, m.name as member_name 
     FROM deposits d 
     LEFT JOIN members m ON d.member_id = m.id 
+    WHERE d.user_id = ?
     ORDER BY d.deposit_date DESC, d.created_at DESC
   `;
   
-  db.query(query, (err, results) => {
+  db.query(query, [userId], (err, results) => {
     if (err) {
       console.error('Error fetching deposits:', err);
       return res.status(500).json({ 
@@ -1137,7 +1140,10 @@ app.get('/api/deposits', (req, res) => {
       created_at: deposit.created_at
     }));
     
-    res.json(deposits);
+    res.json({
+      success: true,
+      deposits: deposits
+    });
   });
 });
 
