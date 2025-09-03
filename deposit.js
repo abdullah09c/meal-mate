@@ -1,5 +1,5 @@
 // Deposit management functionality
-let currentUserId = null;
+let currentAdminId = null;
 let deposits = [];
 let members = [];
 
@@ -10,22 +10,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function initializeDepositPage() {
     try {
-        currentUserId = getCurrentUserId();
-        if (!currentUserId) {
+        currentAdminId = getCurrentAdminId();
+        console.log('Current Admin ID:', currentAdminId);
+        
+        if (!currentAdminId) {
+            console.log('No admin ID found, redirecting to login');
             window.location.href = 'login.html';
             return;
         }
 
         // Update navigation links with current user ID
-        updateNavigationLinks();
+        if (typeof updateNavigationLinksWithAdminId === 'function') {
+            updateNavigationLinksWithAdminId();
+        }
         
         // Load user profile info for header
         await loadUserProfile();
         
         // Load members for dropdown
+        console.log('Loading members...');
         await loadMembers();
         
         // Load deposits
+        console.log('Loading deposits...');
         await loadDeposits();
         
         // Set default date to today
@@ -34,6 +41,8 @@ async function initializeDepositPage() {
         
         // Initialize event listeners
         initializeEventListeners();
+        
+        console.log('Deposit page initialized successfully');
         
     } catch (error) {
         console.error('Error initializing deposit page:', error);
@@ -67,7 +76,7 @@ function initializeEventListeners() {
 
 async function loadUserProfile() {
     try {
-        const response = await fetch(`/api/users/${currentUserId}`);
+        const response = await fetch(`/api/admins/${currentAdminId}`);
         if (response.ok) {
             const user = await response.json();
             updateUserDisplay(user);
@@ -93,20 +102,26 @@ function updateUserDisplay(user) {
     // Update profile link
     const profileLinks = document.querySelectorAll('a[href*="profile.html"]');
     profileLinks.forEach(link => {
-        link.href = `profile.html?userId=${currentUserId}`;
+        link.href = `profile.html?adminId=${currentAdminId}`;
     });
 }
 
 async function loadMembers() {
     try {
-        const response = await fetch(`/api/members?userId=${currentUserId}`);
+        const response = await fetch(`/api/members?adminId=${currentAdminId}`);
         if (response.ok) {
             const data = await response.json();
-            members = data.success ? data.members : [];
+            // API returns array directly, not wrapped in success object
+            members = Array.isArray(data) ? data : [];
+            console.log('Loaded members:', members);
             populateMemberDropdown();
+        } else {
+            console.error('Failed to load members:', response.status);
+            members = [];
         }
     } catch (error) {
         console.error('Error loading members:', error);
+        members = [];
     }
 }
 
@@ -123,14 +138,17 @@ function populateMemberDropdown() {
     members.forEach(member => {
         const option = document.createElement('option');
         option.value = member.id;
-        option.textContent = member.name;
+        // Use full_name or name property from API response
+        option.textContent = member.full_name || member.name || `Member ${member.id}`;
         select.appendChild(option);
     });
+    
+    console.log('Populated member dropdown with', members.length, 'members');
 }
 
 async function loadDeposits() {
     try {
-        const response = await fetch(`/api/deposits?userId=${currentUserId}`);
+        const response = await fetch(`/api/deposits?adminId=${currentAdminId}`);
         if (response.ok) {
             const data = await response.json();
             deposits = data.success ? data.deposits : [];
@@ -173,7 +191,9 @@ function createDepositRow(deposit) {
         day: 'numeric'
     });
     
-    const memberName = members.find(m => m.id === deposit.member_id)?.name || 'N/A';
+    const memberName = members.find(m => m.id === deposit.member_id)?.full_name || 
+                      members.find(m => m.id === deposit.member_id)?.name || 
+                      deposit.member_name || 'N/A';
     
     row.innerHTML = `
         <td>
@@ -342,7 +362,7 @@ async function handleAddDeposit(event) {
         date: formData.get('depositDate'),
         description: formData.get('depositDescription') || null,
         member_id: formData.get('depositMember') || null,
-        user_id: currentUserId
+        admin_id: currentAdminId
     };
     
     // Validate

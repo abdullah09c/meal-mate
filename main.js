@@ -15,13 +15,13 @@ function togglePassword(inputId, eyeIcon) {
 }
 
 // Function to get current user ID (from URL params, localStorage, or default)
-function getCurrentUserId() {
+function getCurrentAdminId() {
   // First try to get from URL parameters
   const urlParams = new URLSearchParams(window.location.search);
-  const userIdFromUrl = urlParams.get('userId');
+  const adminIdFromUrl = urlParams.get('adminId');
   
-  if (userIdFromUrl) {
-    return userIdFromUrl;
+  if (adminIdFromUrl) {
+    return adminIdFromUrl;
   }
   
   // Try to get from localStorage
@@ -29,7 +29,7 @@ function getCurrentUserId() {
   if (currentUser) {
     try {
       const user = JSON.parse(currentUser);
-      return user.id || user.userId || 1;
+      return user.id || user.adminId || 1;
     } catch (e) {
       console.warn('Error parsing current user from localStorage:', e);
     }
@@ -41,33 +41,33 @@ function getCurrentUserId() {
 
 // Function to update all profile links with current user ID
 function updateProfileLinks() {
-  const userId = getCurrentUserId();
+  const adminId = getCurrentAdminId();
   const profileLinks = document.querySelectorAll('a[href*="profile.html"]');
   
   profileLinks.forEach(link => {
     const url = new URL(link.href, window.location.origin);
-    url.searchParams.set('userId', userId);
+    url.searchParams.set('adminId', adminId);
     link.href = url.toString();
   });
 }
 
 // Function to update all navigation links with current user ID
 function updateNavigationLinks() {
-  const userId = getCurrentUserId();
+  const adminId = getCurrentAdminId();
   
-  // List of pages that should include userId
-  const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html'];
+  // List of pages that should include adminId
+  const pagesWithAdminId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html'];
   
   // Update all navigation links
   const navLinks = document.querySelectorAll('a[href]');
   navLinks.forEach(link => {
     const href = link.getAttribute('href');
     
-    // Check if it's one of our pages that needs userId
-    pagesWithUserId.forEach(page => {
+    // Check if it's one of our pages that needs adminId
+    pagesWithAdminId.forEach(page => {
       if (href === page || href.includes(page)) {
         const url = new URL(link.href, window.location.origin);
-        url.searchParams.set('userId', userId);
+        url.searchParams.set('adminId', adminId);
         link.href = url.toString();
       }
     });
@@ -202,7 +202,7 @@ function initializeSignupPage() {
         // alert('Account created successfully! Welcome to MealMate.');
         // Create user object for localStorage
         const newUser = {
-          id: result.userId,
+          id: result.adminId,
           firstName: formData.firstName,
           lastName: formData.lastName,
           fullName: `${formData.firstName} ${formData.lastName}`,
@@ -211,8 +211,8 @@ function initializeSignupPage() {
         };
         localStorage.setItem('currentUser', JSON.stringify(newUser));
         
-        // Redirect to dashboard with userId
-        window.location.href = `/dashboard?userId=${result.userId}`;
+        // Redirect to dashboard with adminId
+        window.location.href = `/dashboard?adminId=${result.adminId}`;
       } else {
         alert(`Error: ${result.message}`);
       }
@@ -289,10 +289,10 @@ function initializeLoginPage() {
       
       if (result.success) {
         // Store user data in localStorage for session management
-        localStorage.setItem('currentUser', JSON.stringify(result.user));
+        localStorage.setItem('currentUser', JSON.stringify(result.admin));
         
-        // Redirect to dashboard with userId
-        window.location.href = `/dashboard?userId=${result.user.id}`;
+        // Redirect to dashboard with adminId
+        window.location.href = `/dashboard.html?adminId=${result.admin.id}`;
       } else {
         if (result.field === 'identifier') {
           showError(identifierError, result.message);
@@ -422,7 +422,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Function to update user info in header
 function updateHeaderUserInfo() {
-  const userId = getCurrentUserId();
+  const adminId = getCurrentAdminId();
   const currentUser = localStorage.getItem('currentUser');
   
   if (currentUser) {

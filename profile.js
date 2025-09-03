@@ -8,6 +8,7 @@ class MealMateProfile {
     async init() {
         try {
             await this.loadUserData();
+            this.updateNavigationLinksWithAdminId();
             this.setupEventListeners();
             this.updateProfileDisplay();
             this.loadUserStats();
@@ -19,15 +20,16 @@ class MealMateProfile {
 
     async loadUserData() {
         try {
-            // Get userId from URL or default to 1 for demo
+            // Get adminId from URL or default to 1 for demo
             const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('userId') || 1;
+            const adminId = urlParams.get('adminId') || urlParams.get('userId') || 1;
             
-            // Fetch from server with userId
-            const response = await fetch(`/api/user-profile?userId=${userId}`);
+            // Fetch from server with adminId
+            const response = await fetch(`/api/admin-profile?adminId=${adminId}`);
             if (response.ok) {
                 this.user = await response.json();
-                this.user.userId = userId; // Store userId for later use
+                this.user.adminId = adminId; // Store adminId for later use
+                this.user.userId = adminId; // Backward compatibility
                 
                 // Ensure compatibility with dashboard.js naming conventions
                 if (this.user.first_name && this.user.last_name) {
@@ -41,27 +43,29 @@ class MealMateProfile {
                 
                 localStorage.setItem('currentUser', JSON.stringify(this.user));
             } else if (response.status === 401) {
-                // User not authenticated, redirect to login
+                // Admin not authenticated, redirect to login
                 window.location.href = '/login';
             } else {
-                throw new Error('Failed to fetch user data');
+                throw new Error('Failed to fetch admin data');
             }
         } catch (error) {
-            console.error('Error loading user data:', error);
-            // Use default user data for demo
+            console.error('Error loading admin data:', error);
+            // Use default admin data for demo
             this.user = {
                 id: 1,
-                userId: 1,
+                adminId: 1,
+                userId: 1, // Backward compatibility
                 first_name: 'Test',
-                last_name: 'User',
-                fullname: 'Test User',
-                fullName: 'Test User', // Dashboard.js compatibility
+                last_name: 'Admin',
+                fullname: 'Test Admin',
+                fullName: 'Test Admin', // Dashboard.js compatibility
                 firstName: 'Test', // Dashboard.js compatibility
-                email: 'test@example.com',
+                email: 'admin@example.com',
                 phone: '+1234567890',
+                role: 'admin',
                 created_at: '2024-01-15T10:30:00Z'
             };
-            this.showError('Failed to load user data from database. Using demo data.');
+            this.showError('Failed to load admin data from database. Using demo data.');
         }
     }
 
@@ -121,27 +125,30 @@ class MealMateProfile {
 
     async loadUserStats() {
         try {
-            const userId = this.user.userId || this.user.id || 1;
+            const adminId = this.user.adminId || this.user.userId || this.user.id || 1;
             
-            // Load various stats from API
+            // For admins, we'll show different stats - admin activity rather than member stats
+            // Since admins manage the system, we'll show system-wide statistics
             const [mealsResponse, depositsResponse] = await Promise.all([
-                fetch(`/api/user-meals-count?userId=${userId}`),
-                fetch(`/api/user-deposits-total?userId=${userId}`)
+                fetch(`/api/meals/stats`), // Get overall system stats
+                fetch(`/api/deposits?adminId=${adminId}`) // Get deposits managed by this admin
             ]);
 
             let totalMeals = 0, totalDeposits = 0, daysActive = 0, avgDailyCost = 0;
 
             if (mealsResponse.ok) {
                 const mealsData = await mealsResponse.json();
-                totalMeals = mealsData.total || 0;
+                totalMeals = mealsData.total_meals || 0;
             }
 
             if (depositsResponse.ok) {
                 const depositsData = await depositsResponse.json();
-                totalDeposits = depositsData.total || 0;
+                if (depositsData.success && depositsData.deposits) {
+                    totalDeposits = depositsData.deposits.reduce((sum, deposit) => sum + parseFloat(deposit.amount), 0);
+                }
             }
 
-            // Calculate days active (days since registration)
+            // Calculate days active (days since admin registration)
             if (this.user.created_at) {
                 const createdDate = new Date(this.user.created_at);
                 const today = new Date();
@@ -149,7 +156,7 @@ class MealMateProfile {
                 if (daysActive < 1) daysActive = 1; // At least 1 day
             }
 
-            // Calculate average daily cost
+            // Calculate average daily cost (system-wide)
             if (totalDeposits > 0 && daysActive > 0) {
                 avgDailyCost = Math.round(totalDeposits / daysActive);
             }
@@ -163,15 +170,15 @@ class MealMateProfile {
             });
 
         } catch (error) {
-            console.error('Error loading user stats:', error);
+            console.error('Error loading admin stats:', error);
             // Use demo data
             this.updateStatsDisplay({
-                totalMeals: 45,
-                totalDeposits: 4000,
+                totalMeals: 150,
+                totalDeposits: 15000,
                 daysActive: 30,
-                avgDailyCost: 133
+                avgDailyCost: 500
             });
-            this.showError('Failed to load user statistics from database.');
+            this.showError('Failed to load admin statistics from database.');
         }
     }
 
@@ -186,6 +193,24 @@ class MealMateProfile {
         Object.entries(elements).forEach(([selector, value]) => {
             const element = document.querySelector(selector);
             if (element) element.textContent = value;
+        });
+
+        // Update stat labels for admin context
+        const statLabels = {
+            '.total-meals-taken': 'Total System Meals',
+            '.total-deposits': 'Total Managed Deposits',
+            '.days-active': 'Days as Admin',
+            '.avg-daily-cost': 'Avg Daily System Cost'
+        };
+
+        Object.entries(statLabels).forEach(([selector, label]) => {
+            const statElement = document.querySelector(selector);
+            if (statElement) {
+                const labelElement = statElement.closest('.stat-item')?.querySelector('.stat-label');
+                if (labelElement) {
+                    labelElement.textContent = label;
+                }
+            }
         });
     }
 
@@ -339,11 +364,11 @@ class MealMateProfile {
         };
 
         try {
-            const userId = this.user.userId || this.user.id || 1;
-            console.log('Updating profile for user ID:', userId);
+            const adminId = this.user.adminId || this.user.userId || this.user.id || 1;
+            console.log('Updating admin profile for admin ID:', adminId);
             console.log('Update data:', updatedData);
             
-            const response = await fetch(`/api/update-profile?userId=${userId}`, {
+            const response = await fetch(`/api/update-admin-profile?adminId=${adminId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -355,7 +380,7 @@ class MealMateProfile {
             console.log('Server response:', responseData);
 
             if (response.ok && responseData.success) {
-                // Update local user data
+                // Update local admin data
                 this.user.first_name = firstName;
                 this.user.last_name = lastName;
                 this.user.fullname = fullname;
@@ -373,13 +398,13 @@ class MealMateProfile {
                 // Close modal
                 document.getElementById('editModal').style.display = 'none';
                 
-                this.showSuccess('Profile updated successfully!');
+                this.showSuccess('Admin profile updated successfully!');
             } else {
-                throw new Error(responseData.message || 'Failed to update profile');
+                throw new Error(responseData.message || 'Failed to update admin profile');
             }
         } catch (error) {
-            console.error('Profile update error:', error);
-            this.showError(error.message || 'Failed to update profile. Please try again.');
+            console.error('Admin profile update error:', error);
+            this.showError(error.message || 'Failed to update admin profile. Please try again.');
         } finally {
             // Reset button state
             saveBtn.textContent = originalText;
@@ -412,11 +437,11 @@ class MealMateProfile {
         };
 
         try {
-            const userId = this.user.userId || this.user.id || 1;
-            console.log('Changing password for user ID:', userId);
-            console.log('Current user data:', this.user);
+            const adminId = this.user.adminId || this.user.userId || this.user.id || 1;
+            console.log('Changing password for admin ID:', adminId);
+            console.log('Current admin data:', this.user);
             
-            const response = await fetch(`/api/change-password?userId=${userId}`, {
+            const response = await fetch(`/api/change-admin-password?adminId=${adminId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -431,13 +456,13 @@ class MealMateProfile {
             if (response.ok && responseData.success) {
                 document.getElementById('passwordModal').style.display = 'none';
                 form.reset();
-                this.showSuccess('Password changed successfully!');
+                this.showSuccess('Admin password changed successfully!');
             } else {
-                throw new Error(responseData.message || 'Failed to change password');
+                throw new Error(responseData.message || 'Failed to change admin password');
             }
         } catch (error) {
-            console.error('Password change error:', error);
-            this.showError(error.message || 'Failed to change password. Please try again.');
+            console.error('Admin password change error:', error);
+            this.showError(error.message || 'Failed to change admin password. Please try again.');
         } finally {
             // Reset button state
             saveBtn.textContent = originalText;
@@ -474,10 +499,10 @@ class MealMateProfile {
         };
 
         try {
-            const userId = this.user.userId || this.user.id || 1;
-            console.log('Deleting account for user ID:', userId);
+            const adminId = this.user.adminId || this.user.userId || this.user.id || 1;
+            console.log('Deleting admin account for admin ID:', adminId);
             
-            const response = await fetch(`/api/delete-account?userId=${userId}`, {
+            const response = await fetch(`/api/delete-admin-account?adminId=${adminId}`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
@@ -486,25 +511,25 @@ class MealMateProfile {
             });
 
             const responseData = await response.json();
-            console.log('Account deletion response:', responseData);
+            console.log('Admin account deletion response:', responseData);
 
             if (response.ok && responseData.success) {
                 // Clear local storage
                 localStorage.removeItem('currentUser');
                 
                 // Show success message
-                this.showSuccess('Account deleted successfully. Redirecting...');
+                this.showSuccess('Admin account deleted successfully. Redirecting...');
                 
                 // Redirect to index.html after a short delay
                 setTimeout(() => {
                     window.location.href = '/index.html';
                 }, 2000);
             } else {
-                throw new Error(responseData.message || 'Failed to delete account');
+                throw new Error(responseData.message || 'Failed to delete admin account');
             }
         } catch (error) {
-            console.error('Account deletion error:', error);
-            this.showError(error.message || 'Failed to delete account. Please try again.');
+            console.error('Admin account deletion error:', error);
+            this.showError(error.message || 'Failed to delete admin account. Please try again.');
         } finally {
             // Reset button state
             deleteBtn.textContent = originalText;
@@ -581,6 +606,29 @@ class MealMateProfile {
         setTimeout(() => {
             notification.remove();
         }, 3000);
+    }
+
+    updateNavigationLinksWithAdminId() {
+        const adminId = this.user ? (this.user.adminId || this.user.userId || this.user.id) : 
+                      new URLSearchParams(window.location.search).get('adminId') || '1';
+        
+        // List of pages that should include adminId
+        const pagesWithAdminId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html', 'meal-management.html'];
+        
+        // Update all navigation links
+        const navLinks = document.querySelectorAll('a[href]');
+        navLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            
+            // Check if it's one of our pages that needs adminId
+            pagesWithAdminId.forEach(page => {
+                if (href === page || href.includes(page)) {
+                    const url = new URL(link.href, window.location.origin);
+                    url.searchParams.set('adminId', adminId);
+                    link.href = url.toString();
+                }
+            });
+        });
     }
 }
 

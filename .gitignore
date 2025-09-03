@@ -189,3 +189,7 @@ test-*.html
 # Exclude any local development configurations
 local-config.js
 dev-settings.json
+debug-bazar-detailed.html
+debug-bazar.html
+debug-bazar-simple.html
+debug-members.js

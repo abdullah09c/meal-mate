@@ -8,6 +8,10 @@ let searchDebounceTimer = null;
 
 // Initialize page when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM Content Loaded - bazar.js');
+    console.log('bazarCardsContainer exists:', !!document.getElementById('bazarCardsContainer'));
+    console.log('cardView exists:', !!document.getElementById('cardView'));
+    console.log('tableView exists:', !!document.getElementById('tableView'));
     initializePage();
 });
 
@@ -15,8 +19,10 @@ function initializePage() {
     // Show loading state
     showLoadingState();
     
-    // Populate year filter
-    populateYearFilter();
+    // Update navigation links with adminId
+    if (typeof updateNavigationLinksWithAdminId === 'function') {
+        updateNavigationLinksWithAdminId();
+    }
     
     // Set current date as default
     const today = new Date().toISOString().split('T')[0];
@@ -44,12 +50,6 @@ function initializePage() {
                 closeBazarModal();
             }
         });
-    }
-    
-    // Setup search functionality
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', handleSearch);
     }
     
     // Update last updated time
@@ -106,7 +106,6 @@ async function loadMembers() {
         if (response.ok) {
             members = await response.json();
             populateMemberSelect();
-            populateMemberFilter();
         } else {
             console.error('Failed to load members');
             showToast('Failed to load members', 'error');
@@ -147,49 +146,19 @@ function populateMemberFilter() {
 }
 
 async function loadBazarRecords() {
+    console.log('loadBazarRecords called');
     try {
         showLoadingState();
         
-        // Get filter values
-        const searchTerm = document.getElementById('searchInput')?.value || '';
-        const memberFilter = document.getElementById('memberFilter')?.value || '';
-        const month = document.getElementById('monthFilter')?.value || '';
-        const year = document.getElementById('yearFilter')?.value || '';
-        const minAmount = document.getElementById('minAmount')?.value || '';
-        const maxAmount = document.getElementById('maxAmount')?.value || '';
-        const sortBy = document.getElementById('sortBy')?.value || 'date_desc';
+        console.log('Fetching from /api/bazar');
+        const response = await fetch('/api/bazar');
+        console.log('Response status:', response.status, response.ok);
         
-        let url = '/api/bazar';
-        const params = new URLSearchParams();
-        
-        if (searchTerm) params.append('search', searchTerm);
-        if (memberFilter) params.append('member_id', memberFilter);
-        if (month) params.append('month', month);
-        if (year) params.append('year', year);
-        if (minAmount) params.append('min_amount', minAmount);
-        if (maxAmount) params.append('max_amount', maxAmount);
-        if (sortBy) params.append('sort', sortBy);
-        
-        if (params.toString()) {
-            url += '?' + params.toString();
-        }
-        
-        const response = await fetch(url);
         if (response.ok) {
             bazarRecords = await response.json();
+            console.log('Loaded bazar records:', bazarRecords.length, 'records');
+            console.log('Sample record:', bazarRecords[0]);
             
-            // Apply client-side filtering if needed
-            let filteredRecords = bazarRecords;
-            
-            if (searchTerm) {
-                filteredRecords = filteredRecords.filter(record => 
-                    record.member_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    (record.description && record.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                    (record.items && record.items.toLowerCase().includes(searchTerm.toLowerCase()))
-                );
-            }
-            
-            bazarRecords = filteredRecords;
             displayBazarRecords();
             loadQuickSummary();
             updateLastUpdatedTime();
@@ -207,20 +176,7 @@ async function loadBazarRecords() {
 
 async function loadQuickSummary() {
     try {
-        const month = document.getElementById('monthFilter')?.value || '';
-        const year = document.getElementById('yearFilter')?.value || '';
-        
-        let url = '/api/bazar/summary';
-        const params = new URLSearchParams();
-        
-        if (month) params.append('month', month);
-        if (year) params.append('year', year);
-        
-        if (params.toString()) {
-            url += '?' + params.toString();
-        }
-        
-        const response = await fetch(url);
+        const response = await fetch('/api/bazar/summary');
         if (response.ok) {
             const stats = await response.json();
             updateQuickSummaryCards(stats);
@@ -300,17 +256,25 @@ function setPresetFilter(preset) {
 }
 
 function displayBazarRecords() {
-    if (bazarRecords.length === 0) {
-        showEmptyState();
-        return;
-    }
+    console.log('Displaying bazar records:', bazarRecords.length, 'records');
     
-    hideEmptyState();
-    
-    if (currentView === 'card') {
-        displayCardView();
-    } else {
-        displayTableView();
+    try {
+        if (bazarRecords.length === 0) {
+            showEmptyState();
+            return;
+        }
+        
+        hideEmptyState();
+        
+        if (currentView === 'card') {
+            displayCardView();
+        } else {
+            displayTableView();
+        }
+    } catch (error) {
+        console.error('Error displaying bazar records:', error);
+        showToast('Error displaying bazar records', 'error');
+        hideLoadingState();
     }
 }
 
@@ -330,73 +294,97 @@ function hideEmptyState() {
 }
 
 function displayCardView() {
+    console.log('displayCardView called with', bazarRecords.length, 'records');
     const container = document.getElementById('bazarCardsContainer');
-    if (!container) return;
+    console.log('Container found:', !!container);
     
-    container.innerHTML = bazarRecords.map(record => {
-        const itemsList = getItemsList(record.items);
-        return `
-            <div class="bazar-card">
-                <div class="card-header">
-                    <div class="card-date">
-                        <div class="date-main">${formatDateShort(record.date)}</div>
-                        <div class="date-sub">${getTimeAgo(record.created_at)}</div>
-                    </div>
-                    <div class="card-amount">
-                        <div class="amount-main">৳${parseFloat(record.total_cost).toFixed(2)}</div>
-                        <div class="amount-sub">Total Cost</div>
-                    </div>
-                </div>
-                
-                <div class="card-body">
-                    <div class="member-info">
-                        <div class="member-avatar">
-                            <i class="fas fa-user"></i>
+    if (!container) {
+        console.error('bazarCardsContainer element not found');
+        showToast('Error: Container element not found', 'error');
+        return;
+    }
+
+    try {
+        console.log('Generating HTML for', bazarRecords.length, 'records');
+        container.innerHTML = bazarRecords.map(record => {
+            const itemsList = getItemsList(record.items);
+            return `
+                <div class="bazar-card">
+                    <div class="card-header">
+                        <div class="card-date">
+                            <div class="date-main">${formatDateShort(record.date)}</div>
+                            <div class="date-sub">${getTimeAgo(record.created_at)}</div>
                         </div>
-                        <div class="member-details">
-                            <div class="member-name">${record.member_name}</div>
-                            <div class="member-role">Shopper</div>
+                        <div class="card-amount">
+                            <div class="amount-main">৳${parseFloat(record.total_cost).toFixed(2)}</div>
+                            <div class="amount-sub">Total Cost</div>
                         </div>
                     </div>
                     
-                    ${record.description ? `
-                        <div class="card-description">
-                            <i class="fas fa-comment"></i>
-                            <span>${record.description}</span>
+                    <div class="card-body">
+                        <div class="member-info">
+                            <div class="member-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="member-details">
+                                <div class="member-name">${record.member_name}</div>
+                                <div class="member-role">Shopper</div>
+                            </div>
                         </div>
-                    ` : ''}
+                        
+                        ${record.description ? `
+                            <div class="card-description">
+                                <i class="fas fa-comment"></i>
+                                <span>${record.description}</span>
+                            </div>
+                        ` : ''}
+                        
+                        ${itemsList ? `
+                            <div class="card-items">
+                                <div class="items-header">
+                                    <i class="fas fa-list"></i>
+                                    <span>Items (${itemsList.length})</span>
+                                </div>
+                                <div class="items-list">
+                                    ${itemsList.slice(0, 3).map(item => `<span class="item-tag">${item}</span>`).join('')}
+                                    ${itemsList.length > 3 ? `<span class="item-tag more">+${itemsList.length - 3} more</span>` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
                     
-                    ${itemsList ? `
-                        <div class="card-items">
-                            <div class="items-header">
-                                <i class="fas fa-list"></i>
-                                <span>Items (${itemsList.length})</span>
-                            </div>
-                            <div class="items-list">
-                                ${itemsList.slice(0, 3).map(item => `<span class="item-tag">${item}</span>`).join('')}
-                                ${itemsList.length > 3 ? `<span class="item-tag more">+${itemsList.length - 3} more</span>` : ''}
-                            </div>
-                        </div>
-                    ` : ''}
+                    <div class="card-footer">
+                        <button class="action-btn small outline" onclick="editBazarRecord(${record.id})" title="Edit">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                        <button class="action-btn small danger" onclick="deleteBazarRecord(${record.id})" title="Delete">
+                            <i class="fas fa-trash"></i>
+                            Delete
+                        </button>
+                    </div>
                 </div>
-                
-                <div class="card-footer">
-                    <button class="action-btn small outline" onclick="editBazarRecord(${record.id})" title="Edit">
-                        <i class="fas fa-edit"></i>
-                        Edit
-                    </button>
-                    <button class="action-btn small danger" onclick="deleteBazarRecord(${record.id})" title="Delete">
-                        <i class="fas fa-trash"></i>
-                        Delete
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    // Show card view
-    document.getElementById('cardView').style.display = 'block';
-    document.getElementById('tableView').style.display = 'none';
+            `;
+        }).join('');
+        
+        console.log('HTML generated, container innerHTML length:', container.innerHTML.length);
+        
+        // Show card view
+        const cardViewElement = document.getElementById('cardView');
+        const tableViewElement = document.getElementById('tableView');
+        
+        console.log('cardView element found:', !!cardViewElement);
+        console.log('tableView element found:', !!tableViewElement);
+        
+        if (cardViewElement) cardViewElement.style.display = 'block';
+        if (tableViewElement) tableViewElement.style.display = 'none';
+        
+        console.log('Card view display completed');
+    } catch (error) {
+        console.error('Error in displayCardView:', error);
+        showToast('Error rendering bazar records', 'error');
+        container.innerHTML = '<div class="error-message">Error loading bazar records. Please refresh the page.</div>';
+    }
 }
 
 function displayTableView() {
@@ -456,20 +444,33 @@ function displayTableView() {
     }).join('');
     
     // Show table view
-    document.getElementById('cardView').style.display = 'none';
-    document.getElementById('tableView').style.display = 'block';
+    const cardViewElement = document.getElementById('cardView');
+    const tableViewElement = document.getElementById('tableView');
+    
+    if (cardViewElement) cardViewElement.style.display = 'none';
+    if (tableViewElement) tableViewElement.style.display = 'block';
 }
 
 function getItemsList(itemsJson) {
     if (!itemsJson) return null;
     
-    try {
-        const items = JSON.parse(itemsJson);
-        return Array.isArray(items) ? items.filter(item => item.trim()) : null;
-    } catch (e) {
-        // If it's not JSON, try to split by lines or commas
-        return itemsJson.split(/\n|,/).map(item => item.trim()).filter(item => item);
+    // If itemsJson is already an array, use it directly
+    if (Array.isArray(itemsJson)) {
+        return itemsJson.filter(item => item && item.trim());
     }
+    
+    // If it's a string, try to parse it as JSON first
+    if (typeof itemsJson === 'string') {
+        try {
+            const items = JSON.parse(itemsJson);
+            return Array.isArray(items) ? items.filter(item => item && item.trim()) : null;
+        } catch (e) {
+            // If it's not JSON, try to split by lines or commas
+            return itemsJson.split(/\n|,/).map(item => item.trim()).filter(item => item);
+        }
+    }
+    
+    return null;
 }
 
 function toggleView(view) {
@@ -489,31 +490,55 @@ function toggleView(view) {
 }
 
 function formatDateShort(dateString) {
-    const date = new Date(dateString);
-    const day = date.getDate();
-    const month = date.toLocaleDateString('en-GB', { month: 'short' });
-    return `${day} ${month}`;
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return 'Invalid Date';
+        }
+        const day = date.getDate();
+        const month = date.toLocaleDateString('en-GB', { month: 'short' });
+        return `${day} ${month}`;
+    } catch (error) {
+        console.error('Error formatting date:', error, dateString);
+        return 'Invalid Date';
+    }
 }
 
 function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric'
-    });
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return 'Invalid Date';
+        }
+        return date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    } catch (error) {
+        console.error('Error formatting date:', error, dateString);
+        return 'Invalid Date';
+    }
 }
 
 function getTimeAgo(dateString) {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-    return `${Math.ceil(diffDays / 30)} months ago`;
+    try {
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            return 'Unknown time';
+        }
+        const now = new Date();
+        const diffTime = Math.abs(now - date);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === 1) return 'Yesterday';
+        if (diffDays < 7) return `${diffDays} days ago`;
+        if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
+        return `${Math.ceil(diffDays / 30)} months ago`;
+    } catch (error) {
+        console.error('Error calculating time ago:', error, dateString);
+        return 'Unknown time';
+    }
 }
 
 function openBazarModal(editId = null) {

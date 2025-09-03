@@ -1,13 +1,13 @@
 // Modern Dashboard JavaScript
 
-// Utility function to get current user ID
-function getCurrentUserId() {
+// Utility function to get current admin ID
+function getCurrentAdminId() {
     // First try to get from URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const userIdFromUrl = urlParams.get('userId');
+    const adminIdFromUrl = urlParams.get('adminId');
     
-    if (userIdFromUrl) {
-        return userIdFromUrl;
+    if (adminIdFromUrl) {
+        return adminIdFromUrl;
     }
     
     // Try to get from localStorage
@@ -15,7 +15,7 @@ function getCurrentUserId() {
     if (currentUser) {
         try {
             const user = JSON.parse(currentUser);
-            return user.id || user.userId || 1;
+            return user.id || user.adminId || 1;
         } catch (e) {
             console.warn('Error parsing current user from localStorage:', e);
         }
@@ -27,7 +27,7 @@ function getCurrentUserId() {
 
 class MealMateDashboard {
   constructor() {
-    this.userId = null;
+    this.adminId = null;
     this.userName = null;
     this.charts = {};
     this.data = {
@@ -49,15 +49,15 @@ class MealMateDashboard {
 
   getUserInfo() {
     const urlParams = new URLSearchParams(window.location.search);
-    // First try to get userId from URL
-    this.userId = urlParams.get("userId") || 1;
+    // First try to get adminId from URL
+    this.adminId = urlParams.get("adminId") || 1;
 
     // Try to get user data from localStorage
     const currentUser = localStorage.getItem("currentUser");
     if (currentUser) {
       try {
         const user = JSON.parse(currentUser);
-        this.userId = user.id || this.userId;
+        this.adminId = user.id || this.adminId;
         // Prioritize fullName over firstName for consistent display
         this.userName = user.fullName || user.firstName || "User";
       } catch (e) {
@@ -106,9 +106,10 @@ class MealMateDashboard {
       this.updateStats();
       this.loadRecentActivity();
       this.loadTopSpenders();
-    } catch (error) {
-      console.error("Error loading dashboard data:", error);
-      this.showError("Failed to load dashboard data");
+    } 
+    catch (error) {
+      // console.error("Error loading dashboard data:", error);
+      // this.showError("Failed to load dashboard data");
     }
   }
 
@@ -133,7 +134,7 @@ class MealMateDashboard {
   async loadTodayMealRate() {
     try {
       const response = await fetch(
-        `/api/today-meal-rate?userId=${this.userId}`
+        `/api/today-meal-rate?adminId=${this.adminId}`
       );
       const data = await response.json();
 
@@ -154,7 +155,7 @@ class MealMateDashboard {
 
   async loadTotalCost() {
     try {
-      const response = await fetch(`/api/total-cost?userId=${this.userId}`);
+      const response = await fetch(`/api/total-cost?adminId=${this.adminId}`);
       const data = await response.json();
 
       this.updateStatCard(".total-cost-value", `৳${data.totalCost || "0.00"}`);
@@ -184,7 +185,7 @@ class MealMateDashboard {
 
   async loadTotalDeposit() {
     try {
-      const response = await fetch(`/api/total-deposit?userId=${this.userId}`);
+      const response = await fetch(`/api/total-deposit?adminId=${this.adminId}`);
       const data = await response.json();
 
       this.updateStatCard(".deposit-value", `৳${data.totalDeposit || "0.00"}`);
@@ -207,7 +208,7 @@ class MealMateDashboard {
 
   async loadTotalMeals() {
     try {
-      const response = await fetch(`/api/total-meals?userId=${this.userId}`);
+      const response = await fetch(`/api/total-meals?adminId=${this.adminId}`);
       const data = await response.json();
 
       this.updateStatCard(".meal-count-value", data.totalMeals || "0");
@@ -911,15 +912,10 @@ document.addEventListener("DOMContentLoaded", function () {
     window.mealMateDashboard = new MealMateDashboard();
   }
 
-  // Initialize member management if on members page
-  if (document.querySelector(".members-container")) {
-    initializeMemberManagement();
-  }
-
   // Enhanced dashboard initialization
   if (document.querySelector('.welcome-section')) {
     // Update navigation links with current user ID
-    updateNavigationLinksWithUserId();
+    updateNavigationLinksWithAdminId();
   }
 
   // Navigation functionality
@@ -945,28 +941,28 @@ if (typeof module !== "undefined" && module.exports) {
 
 // Quick action functions
 function quickAddExpense() {
-  const userId = getCurrentUserId();
-  window.location.href = `bazar.html?userId=${userId}&action=add`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `bazar.html?adminId=${adminId}&action=add`;
 }
 
 function viewReports() {
-  const userId = getCurrentUserId();
-  window.location.href = `reports.html?userId=${userId}`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `reports.html?adminId=${adminId}`;
 }
 
 function addBazarRecord() {
-  const userId = getCurrentUserId();
-  window.location.href = `bazar.html?userId=${userId}&action=add`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `bazar.html?adminId=${adminId}&action=add`;
 }
 
 function addDeposit() {
-  const userId = getCurrentUserId();
-  window.location.href = `deposit.html?userId=${userId}&action=add`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `deposit.html?adminId=${adminId}&action=add`;
 }
 
 function manageMembers() {
-  const userId = getCurrentUserId();
-  window.location.href = `members.html?userId=${userId}`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `members.html?adminId=${adminId}`;
 }
 
 function manageBudget() {
@@ -974,27 +970,27 @@ function manageBudget() {
 }
 
 function viewAllActivity() {
-  const userId = getCurrentUserId();
-  window.location.href = `reports.html?userId=${userId}&tab=activity`;
+  const adminId = getCurrentAdminId();
+  window.location.href = `reports.html?adminId=${adminId}&tab=activity`;
 }
 
-// Function to update navigation links with user ID
-function updateNavigationLinksWithUserId() {
-  const userId = getCurrentUserId();
+// Function to update navigation links with admin ID
+function updateNavigationLinksWithAdminId() {
+  const adminId = getCurrentAdminId();
   
-  // List of pages that should include userId
-  const pagesWithUserId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html'];
+  // List of pages that should include adminId
+  const pagesWithAdminId = ['dashboard.html', 'profile.html', 'members.html', 'reports.html', 'bazar.html', 'deposit.html', 'meal-management.html'];
   
   // Update all navigation links
   const navLinks = document.querySelectorAll('a[href]');
   navLinks.forEach(link => {
     const href = link.getAttribute('href');
     
-    // Check if it's one of our pages that needs userId
-    pagesWithUserId.forEach(page => {
+    // Check if it's one of our pages that needs adminId
+    pagesWithAdminId.forEach(page => {
       if (href === page || href.includes(page)) {
         const url = new URL(link.href, window.location.origin);
-        url.searchParams.set('userId', userId);
+        url.searchParams.set('adminId', adminId);
         link.href = url.toString();
       }
     });
@@ -1093,9 +1089,9 @@ async function loadMembersFromDatabase() {
     // Get current user ID from localStorage or URL params
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = currentUser.id || urlParams.get('userId') || 1;
+    const adminId = currentUser.id || urlParams.get('adminId') || 1;
     
-    const response = await fetch(`/api/members?userId=${userId}`);
+    const response = await fetch(`/api/members?adminId=${adminId}`);
     const data = await response.json();
 
     if (data.success) {
@@ -1266,10 +1262,10 @@ async function addNewMember(data) {
     // Get current user ID from localStorage or URL params
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = currentUser.id || urlParams.get('userId') || 1;
+    const adminId = currentUser.id || urlParams.get('adminId') || 1;
 
     // Send data to backend
-    const response = await fetch(`/api/members?userId=${userId}`, {
+    const response = await fetch(`/api/members?adminId=${adminId}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -1334,10 +1330,10 @@ async function removeMemberById(memberId) {
     // Get current user ID from localStorage or URL params
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = currentUser.id || urlParams.get('userId') || 1;
+    const adminId = currentUser.id || urlParams.get('adminId') || 1;
 
     // Send delete request to backend
-    const response = await fetch(`/api/members/${memberId}?userId=${userId}`, {
+    const response = await fetch(`/api/members/${memberId}?adminId=${adminId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -1390,10 +1386,10 @@ async function updateMemberById(data) {
     // Get current user ID from localStorage or URL params
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     const urlParams = new URLSearchParams(window.location.search);
-    const userId = currentUser.id || urlParams.get('userId') || 1;
+    const adminId = currentUser.id || urlParams.get('adminId') || 1;
 
     // Send update request to backend
-    const response = await fetch(`/api/members/${data.id}?userId=${userId}`, {
+    const response = await fetch(`/api/members/${data.id}?adminId=${adminId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

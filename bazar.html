@@ -30,9 +30,9 @@
                             <i class="fas fa-home"></i>
                             <span>Dashboard</span>
                         </a>
-                        <a href="reports.html" class="nav-item" id="reportsLink">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Reports</span>
+                        <a href="meal-management.html" class="nav-item" id="mealsLink">
+                            <i class="fas fa-utensils"></i>
+                            <span>Meals</span>
                         </a>
                         <a href="bazar.html" class="nav-item active" id="bazarLink">
                             <i class="fas fa-shopping-cart"></i>
@@ -164,115 +164,6 @@
                     </div>
                 </div>
 
-                <!-- Enhanced Filter Section -->
-                <div class="filter-section enhanced">
-                    <div class="filter-header">
-                        <h3>
-                            <i class="fas fa-filter"></i>
-                            Filter & Search
-                        </h3>
-                        <div class="filter-actions">
-                            <button class="filter-preset" onclick="setPresetFilter('today')">
-                                <i class="fas fa-calendar-day"></i>
-                                Today
-                            </button>
-                            <button class="filter-preset" onclick="setPresetFilter('week')">
-                                <i class="fas fa-calendar-week"></i>
-                                This Week
-                            </button>
-                            <button class="filter-preset" onclick="setPresetFilter('month')">
-                                <i class="fas fa-calendar-alt"></i>
-                                This Month
-                            </button>
-                        </div>
-                    </div>
-                    <div class="filter-controls-grid">
-                        <div class="filter-group">
-                            <label for="searchInput">
-                                <i class="fas fa-search"></i>
-                                Search
-                            </label>
-                            <input type="text" id="searchInput" class="form-control" placeholder="Search by member, description or items...">
-                        </div>
-                        <div class="filter-group">
-                            <label for="memberFilter">
-                                <i class="fas fa-user"></i>
-                                Member
-                            </label>
-                            <select id="memberFilter" class="form-control">
-                                <option value="">All Members</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="monthFilter">
-                                <i class="fas fa-calendar"></i>
-                                Month
-                            </label>
-                            <select id="monthFilter" class="form-control">
-                                <option value="">All Months</option>
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="yearFilter">
-                                <i class="fas fa-calendar-alt"></i>
-                                Year
-                            </label>
-                            <select id="yearFilter" class="form-control">
-                                <option value="">All Years</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="minAmount">
-                                <i class="fas fa-greater-than-equal"></i>
-                                Min Amount
-                            </label>
-                            <input type="number" id="minAmount" class="form-control" placeholder="Min ৳" min="0" step="0.01">
-                        </div>
-                        <div class="filter-group">
-                            <label for="maxAmount">
-                                <i class="fas fa-less-than-equal"></i>
-                                Max Amount
-                            </label>
-                            <input type="number" id="maxAmount" class="form-control" placeholder="Max ৳" min="0" step="0.01">
-                        </div>
-                        <div class="filter-group">
-                            <label for="sortBy">
-                                <i class="fas fa-sort"></i>
-                                Sort By
-                            </label>
-                            <select id="sortBy" class="form-control">
-                                <option value="date_desc">Date (Newest First)</option>
-                                <option value="date_asc">Date (Oldest First)</option>
-                                <option value="amount_desc">Amount (High to Low)</option>
-                                <option value="amount_asc">Amount (Low to High)</option>
-                                <option value="member_name">Member Name</option>
-                            </select>
-                        </div>
-                        <div class="filter-actions">
-                            <button class="action-btn primary" onclick="applyFilters()">
-                                <i class="fas fa-search"></i>
-                                Apply Filters
-                            </button>
-                            <button class="action-btn outline" onclick="clearFilters()">
-                                <i class="fas fa-times"></i>
-                                Clear All
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Bazar Records History -->
                 <div class="bazar-history">
                     <div class="history-header">
@@ -296,14 +187,16 @@
 
                     <!-- Card View -->
                     <div id="cardView" class="records-view active">
-                        <div id="bazarCardsContainer" class="bazar-cards-grid">
-                            <!-- Loading State -->
-                            <div class="loading-state" id="loadingState">
-                                <div class="loading-spinner">
-                                    <i class="fas fa-spinner fa-spin"></i>
-                                </div>
-                                <p>Loading bazar records...</p>
+                        <!-- Loading State -->
+                        <div class="loading-state" id="loadingState">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner fa-spin"></i>
                             </div>
+                            <p>Loading bazar records...</p>
+                        </div>
+                        
+                        <div id="bazarCardsContainer" class="bazar-cards-grid">
+                            <!-- Bazar cards will be loaded dynamically -->
                         </div>
                     </div>
 
@@ -404,14 +297,6 @@
                             </label>
                             <input type="number" id="totalCost" name="total_cost" required min="0" step="0.01" placeholder="0.00">
                             <div class="error-message" id="cost-error"></div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="description">
-                                <i class="fas fa-comment"></i>
-                                Description
-                            </label>
-                            <textarea id="description" name="description" placeholder="Brief description of the shopping (optional)" rows="3"></textarea>
                         </div>
                         
                         <div class="form-group">

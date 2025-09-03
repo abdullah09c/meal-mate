@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MealMate - Meal Management</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="dashboard-styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Tab Navigation Styles */
+      .tab-navigation {
+        display: flex;
+        margin-bottom: 24px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        padding: 12px 20px;
+        border: none;
+        background: transparent;
+        border-radius: 8px;
+        font-weight: 500;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .tab-btn:hover {
+        color: #059669;
+        background: rgba(59, 130, 246, 0.1);
+      }
+
+      .tab-btn.active {
+        background: #059669;
+        color: white;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+      }
+
+      /* Tab Content */
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      /* Today's Stats Container */
+      .today-stats-container {
+        margin-bottom: 24px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      .stat-item {
+        background: white;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .stat-label {
+        font-weight: 500;
+        color: #64748b;
+      }
+
+      .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #1e293b;
+      }
+
+      /* Members Without Meals Alert */
+      .members-without-meals {
+        background: #fef3c7;
+        border: 1px solid #f59e0b;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 24px;
+        display: none;
+      }
+
+      .members-without-meals.show {
+        display: block;
+      }
+
+      .members-without-meals h4 {
+        color: #92400e;
+        margin-bottom: 8px;
+      }
+
+      .members-without-meals ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #92400e;
+      }
+
+      /* Quick Actions */
+      .quick-actions {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .quick-actions h3 {
+        margin-bottom: 16px;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .quick-action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+
+      .quick-btn {
+        padding: 12px 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .quick-btn.breakfast {
+        background: #fef3c7;
+        color: #92400e;
+        border: 1px solid #f59e0b;
+      }
+
+      .quick-btn.breakfast:hover {
+        background: #fcd34d;
+      }
+
+      .quick-btn.lunch {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #22c55e;
+      }
+
+      .quick-btn.lunch:hover {
+        background: #86efac;
+      }
+
+      .quick-btn.dinner {
+        background: #e0e7ff;
+        color: #3730a3;
+        border: 1px solid #6366f1;
+      }
+
+      .quick-btn.dinner:hover {
+        background: #a5b4fc;
+      }
+
+      /* Date Range Filter */
+      .date-range-filter {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .date-range-filter h3 {
+        margin-bottom: 16px;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .filter-controls {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .date-inputs {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .date-inputs input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      /* Date Range Summary */
+      .date-range-summary {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: none;
+      }
+
+      .date-range-summary.show {
+        display: block;
+      }
+
+      .summary-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 16px;
+      }
+
+      .stat-card {
+        text-align: center;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 8px;
+      }
+
+      .stat-card h4 {
+        margin-bottom: 8px;
+        color: #64748b;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1e293b;
+      }
+
+      /* Member Summary Section */
+      .member-summary-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 32px;
+      }
+
+      .summary-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin: auto;
+      }
+
+      .month-filter-container {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8fafc;
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .month-input-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .quick-month-buttons {
+        display: flex;
+        gap: 4px;
+      }
+
+      .quick-month-btn {
+        padding: 13px 20px;
+        border: 1px solid #d1d5db;
+        background: #059669;
+        border-radius: 10px;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #fff;
+        font-weight: 900;
+      }
+
+      .quick-month-btn:hover {
+        color: white;
+      }
+
+      .quick-month-btn i {
+        font-size: 10px;
+      }
+
+      .month-filter {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 14px;
+        min-width: 150px;
+        background: white;
+        cursor: pointer;
+      }
+
+      .month-filter:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      .summary-table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+      }
+
+      .summary-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .summary-table th {
+        background: #f8fafc;
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .summary-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .summary-table tr:hover {
+        background: #f9fafb;
+      }
+
+      .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .meals-cell {
+        text-align: center;
+      }
+
+      .amount-cell {
+        text-align: right;
+        font-weight: 600;
+      }
+
+      .amount-cell.positive {
+        color: #059669;
+      }
+
+      .amount-cell.negative {
+        color: #dc2626;
+      }
+
+      .status-cell {
+        text-align: center;
+      }
+
+      .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .status-badge.positive {
+        background: #dcfce7;
+        color: #166534;
+      }
+
+      .status-badge.negative {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      /* Member Financial Analysis Styles */
+      .member-financial-section {
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 32px;
+      }
+
+      .financial-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      /* Financial Summary Styles */
+      .financial-summary {
+        margin: 24px 0;
+      }
+
+      .summary-filter-info {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #475569;
+      }
+
+      .summary-filter-info i {
+        color: #3b82f6;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .summary-card {
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        border: 1px solid #e2e8f0;
+        transition: all 0.3s ease;
+      }
+
+      .summary-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-card.positive {
+        background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+        border-color: #22c55e;
+      }
+
+      .summary-card.negative {
+        background: linear-gradient(135deg, #fee2e2, #fef2f2);
+        border-color: #ef4444;
+      }
+
+      .summary-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .summary-icon i {
+        font-size: 20px;
+        color: #3b82f6;
+      }
+
+      .summary-card.positive .summary-icon i {
+        color: #10b981;
+      }
+
+      .summary-card.negative .summary-icon i {
+        color: #ef4444;
+      }
+
+      .summary-content {
+        flex: 1;
+      }
+
+      .summary-content h4 {
+        margin: 0 0 4px 0;
+        font-size: 14px;
+        font-weight: 500;
+        color: #64748b;
+      }
+
+      .summary-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1e293b;
+        display: block;
+        margin-bottom: 2px;
+      }
+
+      .summary-content small {
+        font-size: 12px;
+        color: #64748b;
+      }
+
+      .financial-table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+
+      .financial-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+      }
+
+      .financial-table th {
+        background: #f8fafc;
+        padding: 16px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        border-bottom: 2px solid #e5e7eb;
+        position: sticky;
+        top: 0;
+      }
+
+      .financial-table td {
+        padding: 16px;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .financial-table tr:hover {
+        background: #f9fafb;
+      }
+
+      .financial-table tr.positive {
+        background: rgba(34, 197, 94, 0.05);
+      }
+
+      .financial-table tr.negative {
+        background: rgba(239, 68, 68, 0.05);
+      }
+
+      .financial-table tr.positive:hover {
+        background: rgba(34, 197, 94, 0.1);
+      }
+
+      .financial-table tr.negative:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      /* Action Button Variants */
+      .action-btn.success {
+        background: #10b981;
+        color: white;
+      }
+
+      .action-btn.success:hover {
+        background: #059669;
+      }
+
+      .summary-table tr.positive {
+        background: rgba(34, 197, 94, 0.05);
+      }
+
+      .summary-table tr.negative {
+        background: rgba(239, 68, 68, 0.05);
+      }
+
+      .summary-table tr.positive:hover {
+        background: rgba(34, 197, 94, 0.1);
+      }
+
+      .summary-table tr.negative:hover {
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      /* Enhanced member cell styling */
+      .member-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 500;
+      }
+
+      .member-cell i {
+        color: #3b82f6;
+        width: 16px;
+        text-align: center;
+      }
+
+      /* Enhanced amount cell with better formatting */
+      .amount-cell small {
+        display: block;
+        font-size: 11px;
+        color: #64748b;
+        font-weight: normal;
+        margin-top: 2px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .tab-navigation {
+          flex-direction: column;
+        }
+
+        .quick-action-buttons {
+          grid-template-columns: 1fr;
+        }
+
+        .filter-controls {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .date-inputs {
+          flex-direction: column;
+        }
+
+        .summary-actions {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        
+        .month-filter-container {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 12px;
+        }
+        
+        .month-input-group {
+          flex-direction: column;
+          gap: 8px;
+        }
+        
+        .quick-month-buttons {
+          justify-content: center;
+        }
+        
+        .month-filter-container label {
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="modern-dashboard">
+      <header class="modern-header">
+        <div class="header-container">
+          <div class="header-left">
+            <div class="brand-logo">
+              <div class="logo-icon">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <div class="brand-text">
+                <h1>MealMate</h1>
+                <span>Meal Management</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="header-center">
+            <nav class="main-nav">
+              <a href="dashboard.html" class="nav-item" id="dashboardLink">
+                <i class="fas fa-home"></i>
+                <span>Dashboard</span>
+              </a>
+              <a
+                href="meal-management.html"
+                class="nav-item active"
+                id="mealsLink"
+              >
+                <i class="fas fa-utensils"></i>
+                <span>Meals</span>
+              </a>
+              <a href="bazar.html" class="nav-item" id="bazarLink">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Bazar</span>
+              </a>
+              <a href="deposit.html" class="nav-item" id="depositLink">
+                <i class="fas fa-wallet"></i>
+                <span>Deposits</span>
+              </a>
+              <a href="members.html" class="nav-item" id="membersLink">
+                <i class="fas fa-users"></i>
+                <span>Members</span>
+              </a>
+            </nav>
+          </div>
+
+          <div class="header-right">
+            <div class="user-profile">
+              <div class="user-avatar-modern">
+                <span class="avatar-letter">U</span>
+              </div>
+              <div class="user-details">
+                <span class="user-name">User</span>
+                <span class="user-role">Member</span>
+              </div>
+              <div class="user-actions">
+                <div class="dropdown">
+                  <button class="dropdown-toggle" aria-label="User menu">
+                    <i class="fas fa-chevron-down"></i>
+                  </button>
+                  <div class="dropdown-menu">
+                    <a
+                      href="profile.html"
+                      class="dropdown-item"
+                      id="profileLink"
+                    >
+                      <i class="fas fa-user"></i>
+                      <span>Profile</span>
+                    </a>
+                    <a href="members.html" class="dropdown-item">
+                      <i class="fas fa-users-cog"></i>
+                      <span>Manage Members</span>
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <button class="dropdown-item logout-btn">
+                      <i class="fas fa-sign-out-alt"></i>
+                      <span>Logout</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="dashboard-main">
+        <div class="meal-container">
+          <!-- Header Section -->
+          <div class="meal-header">
+            <div class="header-content">
+              <div class="feature-icon meals">
+                <i class="fas fa-utensils"></i>
+              </div>
+              <div class="header-text">
+                <h1>Meal Management</h1>
+                <p>Track daily meals and manage member meal records</p>
+              </div>
+            </div>
+            <div class="current-date">
+              <i class="fas fa-calendar-day"></i>
+              <span id="currentDate"></span>
+            </div>
+          </div>
+
+          <!-- Meal Statistics Cards -->
+          <!-- Today's Meal Management -->
+          <div class="today-meals-section">
+            <div class="section-header">
+              <h2>
+                <i class="fas fa-calendar-day"></i>
+                Meal Management
+              </h2>
+              <div class="meal-actions">
+                <button class="action-btn primary" onclick="openMealModal()">
+                  <i class="fas fa-plus"></i>
+                  Add Meal Record
+                </button>
+              
+                <button
+                  class="action-btn outline"
+                  onclick="refreshTodayMeals()"
+                >
+                  <i class="fas fa-sync-alt"></i>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+              <button id="todayTab" class="tab-btn active" onclick="mealManagement.showTodayMeals()">
+                <i class="fas fa-calendar-day"></i>
+                Today's Meals
+              </button>
+            </div>
+
+            <!-- Today's Meals Content -->
+            <div id="todayMealsContent" class="tab-content active">
+              <!-- Today's Stats -->
+              <div class="today-stats-container">
+                <div class="stats-grid" id="todayStats">
+                  <!-- Today's statistics will be loaded here -->
+                </div>
+              </div>
+
+              <!-- Members Without Meals Alert -->
+
+              <!-- Quick Actions -->
+
+              <!-- Today's Meals Grid -->
+              <div class="today-meals-grid" id="todayMealsGrid">
+                <!-- Loading state -->
+                <div class="loading-state" id="todayMealsLoading">
+                  <div class="loading-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                  </div>
+                  <p>Loading today's meals...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- All Meals Content -->
+            <div id="allMealsContent" class="tab-content" style="display: none;">
+              <!-- Date Range Filter -->
+              <div class="date-range-filter">
+                <h3>
+                  <i class="fas fa-filter"></i>
+                  Filter Meals
+                </h3>
+                <div class="filter-controls">
+                  <div class="date-inputs">
+                    <input type="date" id="startDate" placeholder="Start Date">
+                    <input type="date" id="endDate" placeholder="End Date">
+                    <button class="action-btn outline" onclick="loadDateRangeSummary()">
+                      <i class="fas fa-search"></i>
+                      Filter
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Date Range Summary -->
+              <div class="date-range-summary" id="dateRangeSummary">
+                <!-- Summary stats will be loaded here -->
+              </div>
+
+              <!-- All Meals Grid -->
+              <div class="all-meals-grid" id="allMealsGrid">
+                <!-- All meals will be loaded here -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Enhanced Member Financial Analysis Section -->
+          <div class="member-summary-section">
+            <div class="section-header">
+              <h2>
+                <i class="fas fa-chart-line"></i>
+                Member Financial Analysis
+              </h2>
+              <div class="summary-actions">
+                <div class="month-filter-container">
+                  <label for="monthFilter" style="font-size: 14px; color: #64748b; margin-right: 8px;">Filter by:</label>
+                  <div class="month-input-group">
+                    <input type="month" id="monthFilter" class="month-filter" placeholder="Select month and year">
+                    <div class="quick-month-buttons">
+                      <button type="button" class="quick-month-btn" onclick="selectCurrentMonth()" title="Current month">
+                        <i class="fas fa-calendar-day"></i>
+                        This
+                      </button>
+                      <button type="button" class="quick-month-btn" onclick="selectPreviousMonth()" title="Previous month">
+                        <i class="fas fa-arrow-left"></i>
+                        Prev
+                      </button>
+                    </div>
+                  </div>
+                  <button class="action-btn outline" onclick="clearMonthFilter()" style="padding: 8px 12px; font-size: 12px;" title="Clear filter">
+                    <i class="fas fa-times"></i>
+                    All Time
+                  </button>
+                </div>
+                <button class="action-btn primary" onclick="loadMemberFinancials()">
+                  <i class="fas fa-sync-alt"></i>
+                  Recalculate
+                </button>
+                <button class="action-btn outline" onclick="exportMemberSummary()">
+                  <i class="fas fa-download"></i>
+                  Export CSV
+                </button>
+              </div>
+            </div>
+
+            <!-- Financial Summary Cards -->
+            <div class="financial-summary" id="financialSummary">
+              <!-- Summary cards will be loaded here -->
+            </div>
+
+            <!-- Enhanced Financial Table -->
+            <div class="summary-table-container">
+              <table class="summary-table">
+                <thead>
+                  <tr>
+                    <th>Member</th>
+                    <th>Total Meals</th>
+                    <th>Total Deposits</th>
+                    <th>Meal Cost</th>
+                    <th>Remaining Balance</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="memberSummaryBody">
+                  <!-- Member financial data will be loaded here -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+         
+        </div>
+
+        <!-- Floating Action Button -->
+        <div
+          class="floating-action-btn"
+          onclick="openMealModal()"
+          title="Add Meal Record"
+        >
+          <i class="fas fa-plus"></i>
+        </div>
+      </main>
+
+      <!-- Add/Edit Meal Modal -->
+      <div class="modal-overlay" id="mealModal">
+        <div class="modal-container">
+          <div class="modal-header">
+            <h2>
+              <i class="fas fa-utensils"></i>
+              <span id="modalTitle">Add Meal Record</span>
+            </h2>
+            <button class="close-btn" onclick="closeMealModal()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <form class="modal-form" id="mealForm">
+            <div class="form-section">
+              <h3 class="section-title">
+                <i class="fas fa-info-circle"></i>
+                Meal Information
+              </h3>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="memberSelect">
+                    <i class="fas fa-user"></i>
+                    Member
+                  </label>
+                  <select id="memberSelect" name="member_id" required>
+                    <option value="">Select Member</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label for="mealDate">
+                    <i class="fas fa-calendar"></i>
+                    Date
+                  </label>
+                  <input type="date" id="mealDate" name="date" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>
+                  <i class="fas fa-utensils"></i>
+                  Meal Types
+                </label>
+                <div class="meal-checkboxes">
+                  <div class="checkbox-group">
+                    <input
+                      type="checkbox"
+                      id="breakfast"
+                      name="breakfast"
+                      value="1"
+                    />
+                    <label for="breakfast">
+                      <i class="fas fa-coffee"></i>
+                      Breakfast
+                      <span class="meal-count">(1 meal)</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="breakfastCount"
+                      name="breakfast_count"
+                      min="0"
+                      max="5"
+                      value="1"
+                      class="meal-count-input"
+                    />
+                  </div>
+                  <div class="checkbox-group">
+                    <input type="checkbox" id="lunch" name="lunch" value="1" />
+                    <label for="lunch">
+                      <i class="fas fa-hamburger"></i>
+                      Lunch
+                      <span class="meal-count">(1 meal)</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="lunchCount"
+                      name="lunch_count"
+                      min="0"
+                      max="5"
+                      value="1"
+                      class="meal-count-input"
+                    />
+                  </div>
+                  <div class="checkbox-group">
+                    <input
+                      type="checkbox"
+                      id="dinner"
+                      name="dinner"
+                      value="1"
+                    />
+                    <label for="dinner">
+                      <i class="fas fa-pizza-slice"></i>
+                      Dinner
+                      <span class="meal-count">(1 meal)</span>
+                    </label>
+                    <input
+                      type="number"
+                      id="dinnerCount"
+                      name="dinner_count"
+                      min="0"
+                      max="5"
+                      value="1"
+                      class="meal-count-input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="notes">
+                  <i class="fas fa-comment"></i>
+                  Notes (Optional)
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Any additional notes..."
+                  rows="3"
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="modal-actions">
+              <button
+                type="button"
+                class="cancel-btn"
+                onclick="closeMealModal()"
+              >
+                <i class="fas fa-times"></i>
+                Cancel
+              </button>
+              <button type="submit" class="submit-btn">
+                <i class="fas fa-save"></i>
+                <span id="submitBtnText">Save Meal Record</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div class="toast-notification" id="toastNotification">
+        <div class="toast-content">
+          <div class="toast-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <div class="toast-message">
+            <span id="toastMessage">Success message</span>
+          </div>
+          <button class="toast-close" onclick="hideToast()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+    <script src="dashboard.js"></script>
+    <script src="meal-management.js"></script>
+    <script>
+      // Additional UI helper functions
+      function loadDateRangeSummary() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        
+        if (!startDate || !endDate) {
+          showToast('Please select both start and end dates', 'warning');
+          return;
+        }
+        
+        if (new Date(startDate) > new Date(endDate)) {
+          showToast('Start date cannot be after end date', 'error');
+          return;
+        }
+        
+        // Call the meal management function
+        if (window.mealManagement && window.mealManagement.loadDateRangeSummary) {
+          window.mealManagement.loadDateRangeSummary(startDate, endDate);
+          
+          // Show the summary section
+          const summaryContainer = document.getElementById('dateRangeSummary');
+          if (summaryContainer) {
+            summaryContainer.classList.add('show');
+          }
+        }
+      }
+      
+      // Initialize date inputs with current month
+      document.addEventListener('DOMContentLoaded', function() {
+        const today = new Date();
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        
+        if (startDateInput) {
+          startDateInput.value = firstDay.toISOString().split('T')[0];
+        }
+        
+        if (endDateInput) {
+          endDateInput.value = lastDay.toISOString().split('T')[0];
+        }
+        
+        // Set up month filter change event
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+          monthFilter.addEventListener('change', function() {
+            // Automatically recalculate when month changes
+            if (window.loadMemberFinancials) {
+              window.loadMemberFinancials();
+            }
+            
+            // Update the filter display
+            updateMonthFilterDisplay();
+          });
+        }
+        
+        // Initialize month filter display
+        initializeMonthFilter();
+      });
+      
+      // Clear month filter function
+      function clearMonthFilter() {
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+          monthFilter.value = '';
+          // Trigger recalculation
+          if (window.loadMemberFinancials) {
+            window.loadMemberFinancials();
+          }
+          updateMonthFilterDisplay();
+        }
+      }
+      
+      // Update month filter display
+      function updateMonthFilterDisplay() {
+        const monthFilter = document.getElementById('monthFilter');
+        const clearBtn = monthFilter?.closest('.month-filter-container')?.querySelector('.action-btn');
+        
+        if (monthFilter && clearBtn) {
+          if (monthFilter.value) {
+            clearBtn.style.opacity = '1';
+            clearBtn.style.pointerEvents = 'auto';
+            
+            // Show selected month info
+            const selectedDate = new Date(monthFilter.value + '-01');
+            const monthName = selectedDate.toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long' 
+            });
+            clearBtn.title = `Clear filter (showing ${monthName})`;
+            clearBtn.innerHTML = `<i class="fas fa-times"></i> Clear (${monthName})`;
+          } else {
+            clearBtn.style.opacity = '0.7';
+            clearBtn.style.pointerEvents = 'auto';
+            clearBtn.title = 'Currently showing all time data';
+            clearBtn.innerHTML = `<i class="fas fa-calendar"></i> All Time`;
+          }
+        }
+      }
+      
+      // Enhanced month filter with quick selection
+      function initializeMonthFilter() {
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+          // Set default to current month for convenience
+          const today = new Date();
+          const currentMonth = today.toISOString().slice(0, 7); // YYYY-MM format
+          
+          // You can uncomment the line below to default to current month
+          // monthFilter.value = currentMonth;
+          
+          updateMonthFilterDisplay();
+        }
+      }
+      
+      // Quick month selection buttons (you can add these if needed)
+      function selectCurrentMonth() {
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+          const today = new Date();
+          const currentMonth = today.toISOString().slice(0, 7);
+          monthFilter.value = currentMonth;
+          monthFilter.dispatchEvent(new Event('change'));
+        }
+      }
+      
+      function selectPreviousMonth() {
+        const monthFilter = document.getElementById('monthFilter');
+        if (monthFilter) {
+          const today = new Date();
+          const previousMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          const monthValue = previousMonth.toISOString().slice(0, 7);
+          monthFilter.value = monthValue;
+          monthFilter.dispatchEvent(new Event('change'));
+        }
+      }
+      
+      // Update members without meals display
+      function updateMembersWithoutMealsDisplay(members) {
+        const container = document.getElementById('membersWithoutMeals');
+        if (container) {
+          if (members && members.length > 0) {
+            container.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                <h4 style="margin: 0; color: #92400e;">
+                  ${members.length} member${members.length !== 1 ? 's' : ''} without meals today
+                </h4>
+              </div>
+              <ul style="margin: 8px 0 0 0; padding-left: 20px;">
+                ${members.map(member => `<li>${member.full_name || member.name}</li>`).join('')}
+              </ul>
+              <div style="margin-top: 12px;">
+                <button class="action-btn success" onclick="mealManagement.addBulkMeals()" style="font-size: 14px; padding: 8px 16px;">
+                  <i class="fas fa-users-plus"></i>
+                  Add meals for all
+                </button>
+              </div>
+            `;
+            container.classList.add('show');
+          } else {
+            container.innerHTML = `
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                <span style="color: #059669; font-weight: 500;">
+                  All members have meals for today! 🎉
+                </span>
+              </div>
+            `;
+            container.style.background = '#dcfce7';
+            container.style.borderColor = '#22c55e';
+            container.classList.add('show');
+          }
+        }
+      }
+      
+      // Override the displayMembersWithoutMeals function to use the new UI
+      if (window.mealManagement) {
+        window.originalDisplayMembersWithoutMeals = window.displayMembersWithoutMeals;
+        window.displayMembersWithoutMeals = updateMembersWithoutMealsDisplay;
+      }
+    </script>
+  </body>
+</html>

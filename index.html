@@ -1,183 +1,255 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MealMate - Your Meal Management Solution</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MealMate - Professional Meal & Budget Management System</title>
+    <meta
+      name="description"
+      content="Complete meal management solution for tracking expenses, managing deposits, planning meals, and organizing group dining with comprehensive analytics and reporting."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body>
     <div class="landing-page">
-        <!-- Navigation -->
-        <nav class="navbar">
-            <div class="nav-container">
-                <div class="nav-brand">
-                    <div class="logo-icon">
-                        <i class="fas fa-utensils"></i>
-                    </div>
-                    <span>MealMate</span>
-                </div>
-                <div class="nav-links">
-                    <a href="login.html" class="nav-link">Login</a>
-                    <a href="sign-up.html" class="nav-link btn-primary">Sign Up</a>
-                </div>
+      <!-- Navigation -->
+      <nav class="navbar">
+        <div class="nav-container">
+          <div class="nav-brand">
+            <div class="logo-icon">
+              <i class="fas fa-utensils"></i>
             </div>
-        </nav>
+            <span>MealMate</span>
+          </div>
+          <div class="nav-actions">
+            <a href="login.html" class="nav-link login-btn">
+              <i class="fas fa-sign-in-alt"></i>
+              Login
+            </a>
+            <a href="sign-up.html" class="btn btn-primary">
+              <i class="fas fa-user-plus"></i>
+                Sign Up
+            </a>
+          </div>
+        </div>
+      </nav>
 
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1>Welcome to <span class="brand-highlight">MealMate</span></h1>
-                <p class="hero-subtitle">Your ultimate solution for managing meals, tracking expenses, and planning your food budget efficiently.</p>
-                
-                <div class="hero-features">
-                    <div class="feature-item">
-                        <i class="fas fa-calculator"></i>
-                        <span>Track Meal Costs</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Budget Analysis</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Meal Planning</span>
-                    </div>
-                    <div class="feature-item">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Shopping Lists</span>
-                    </div>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <h1
+            >Complete
+            <span class="brand-highlight">Meal & Budget</span> Management
+            Solution</h1
+          >
+          <p class="hero-subtitle">
+            Streamline your meal planning, track expenses with precision, manage
+            member deposits, and get comprehensive analytics - all in one
+            powerful platform designed for modern food management.
+          </p>
+
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-number">5+</div>
+              <div class="stat-label">Core Modules</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Web-Based</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">24/7</div>
+              <div class="stat-label">Access</div>
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a href="sign-up.html" class="btn btn-primary btn-large">
+              <i class="fas fa-rocket"></i>
+               Get Started
+            </a>
+            <a href="#demo" class="btn btn-secondary btn-large">
+              <i class="fas fa-play"></i>
+              View Demo
+            </a>
+          </div>
+
+          <div class="hero-trust">
+            <p
+              >Trusted by food service managers, hostel administrators, and
+              group organizers</p
+            >
+            <div class="trust-badges">
+              <span class="badge"
+                ><i class="fas fa-shield-alt"></i> Secure</span
+              >
+              <span class="badge"
+                ><i class="fas fa-mobile-alt"></i> Mobile Ready</span
+              >
+              <span class="badge"
+                ><i class="fas fa-chart-line"></i> Analytics</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="dashboard-preview">
+            <div class="preview-header">
+              <div class="preview-nav">
+                <span class="nav-dot active"></span>
+                <span class="nav-dot"></span>
+                <span class="nav-dot"></span>
+              </div>
+              <div class="preview-title">MealMate Dashboard</div>
+            </div>
+
+            <div class="preview-content">
+              <div class="widget-grid">
+                <div class="widget">
+                  <div class="widget-header">
+                    <i class="fas fa-utensils"></i>
+                    <span>Today's Meals</span>
+                  </div>
+                  <div class="widget-value">৳285.00</div>
+                  <div class="widget-change positive">
+                    <i class="fas fa-arrow-up"></i> 12%
+                  </div>
                 </div>
 
-                <div class="hero-actions">
-                    <a href="sign-up.html" class="btn btn-primary btn-large">
-                        <i class="fas fa-rocket"></i>
-                        Get Started Free
-                    </a>
-                    <a href="login.html" class="btn btn-secondary btn-large">
-                        <i class="fas fa-key"></i>
-                        Login
-                    </a>
+                <div class="widget">
+                  <div class="widget-header">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Bazar Cost</span>
+                  </div>
+                  <div class="widget-value">৳1,250</div>
+                  <div class="widget-change">
+                    <i class="fas fa-calendar"></i> This week
+                  </div>
                 </div>
-            </div>
-            
-            <div class="hero-image">
-                <div class="meal-card-preview">
-                    <div class="card-header">
-                        <i class="fas fa-utensils"></i>
-                        <span>Today's Meals</span>
-                    </div>
-                    <div class="meal-items">
-                        <div class="meal-item">
-                            <span>Breakfast</span>
-                            <span class="cost">৳80.00</span>
-                        </div>
-                        <div class="meal-item">
-                            <span>Lunch</span>
-                            <span class="cost">৳120.00</span>
-                        </div>
-                        <div class="meal-item">
-                            <span>Dinner</span>
-                            <span class="cost">৳100.00</span>
-                        </div>
-                    </div>
-                    <div class="total">
-                        <span>Total</span>
-                        <span class="total-cost">৳300.00</span>
-                    </div>
-                </div>
-            </div>
-        </section>
 
-        <!-- Features Section -->
-        <section class="features-section">
-            <div class="container">
-                <h2>Why Choose MealMate?</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-money-bill-wave"></i>
-                        </div>
-                        <h3>Expense Tracking</h3>
-                        <p>Keep track of your daily meal expenses and monitor your spending patterns with detailed analytics.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-chart-pie"></i>
-                        </div>
-                        <h3>Budget Management</h3>
-                        <p>Set monthly food budgets and get insights on your spending to help you save money effectively.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <h3>Meal Planning</h3>
-                        <p>Plan your meals in advance and organize your shopping lists to optimize your food budget.</p>
-                    </div>
-                    
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <i class="fas fa-mobile-alt"></i>
-                        </div>
-                        <h3>Easy to Use</h3>
-                        <p>Simple, intuitive interface that makes meal and expense management effortless and enjoyable.</p>
-                    </div>
+                <div class="widget">
+                  <div class="widget-header">
+                    <i class="fas fa-wallet"></i>
+                    <span>Deposits</span>
+                  </div>
+                  <div class="widget-value">৳5,430</div>
+                  <div class="widget-change">
+                    <i class="fas fa-users"></i> 8 members
+                  </div>
                 </div>
-            </div>
-        </section>
+              </div>
 
-        <!-- CTA Section -->
-        <section class="cta-section">
-            <div class="container">
-                <div class="cta-content">
-                    <h2>Ready to Take Control of Your Meal Budget?</h2>
-                    <p>Join thousands of users who are already saving money and eating better with MealMate.</p>
-                    <a href="sign-up.html" class="btn btn-primary btn-large">
-                        <i class="fas fa-rocket"></i>
-                        Start Your Journey
-                    </a>
+              <div class="chart-preview">
+                <div class="chart-header">Monthly Expense Trend</div>
+                <div class="mini-chart">
+                  <div class="chart-bar" style="height: 60%"></div>
+                  <div class="chart-bar" style="height: 80%"></div>
+                  <div class="chart-bar" style="height: 45%"></div>
+                  <div class="chart-bar" style="height: 90%"></div>
+                  <div class="chart-bar" style="height: 70%"></div>
                 </div>
+              </div>
             </div>
-        </section>
+          </div>
+        </div>
+      </section>
 
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="container">
-                <div class="footer-content">
-                    <div class="footer-brand">
-                        <div class="logo-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <span>MealMate</span>
-                    </div>
-                    <div class="footer-links">
-                        <a href="sign-up.html">Sign Up</a>
-                        <a href="login.html">Login</a>
-                        <a href="#features">Features</a>
-                        <a href="#contact">Contact</a>
-                    </div>
+ 
+
+      <!-- Footer -->
+      <footer id="contact" class="footer">
+        <div class="container">
+         
+          <div class="footer-bottom">
+            <div class="footer-bottom-content">
+              <div class="footer-legal">
+                <p>&copy; 2025 MealMate. All rights reserved.</p>
+                <div class="legal-links">
+                  <a href="#privacy">Privacy Policy</a>
+                  <a href="#terms">Terms of Service</a>
+                  <a href="#cookies">Cookie Policy</a>
                 </div>
-                <div class="footer-bottom">
-                    <p>&copy; 2025 MealMate. All rights reserved. | Developed by Abdullah Al Fuwad</p>
-                </div>
+              </div>
+              <div class="footer-credits">
+                <p
+                  >Developed with <i class="fas fa-heart"></i> by
+                  <strong>Abdullah Al Fuwad</strong></p
+                >
+                <p class="version"
+                  >Version 1.0.0 • Built with modern web technologies</p
+                >
+              </div>
             </div>
-        </footer>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <script>
-        // Add scroll effect to navbar
-        window.addEventListener('scroll', function() {
-            const navbar = document.querySelector('.navbar');
-            if (window.scrollY > 50) {
-                navbar.classList.add('scrolled');
-            } else {
-                navbar.classList.remove('scrolled');
-            }
+      // Enhanced navigation scroll effect
+      window.addEventListener("scroll", function () {
+        const navbar = document.querySelector(".navbar");
+        if (window.scrollY > 50) {
+          navbar.classList.add("scrolled");
+        } else {
+          navbar.classList.remove("scrolled");
+        }
+      });
+
+      // Smooth scrolling for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
         });
+      });
+
+      // Add loading animations when page loads
+      window.addEventListener("load", function () {
+        document.body.classList.add("page-loaded");
+      });
+
+      // Demo card hover effects
+      document.querySelectorAll(".demo-card").forEach((card) => {
+        card.addEventListener("mouseenter", function () {
+          this.style.transform = "translateY(-5px)";
+        });
+
+        card.addEventListener("mouseleave", function () {
+          this.style.transform = "translateY(0)";
+        });
+      });
+
+      // Animate stats on scroll
+      function animateStats() {
+        const statNumbers = document.querySelectorAll(".stat-number");
+        statNumbers.forEach((stat) => {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                stat.style.animation = "countUp 1s ease-out";
+              }
+            });
+          });
+          observer.observe(stat);
+        });
+      }
+
+      // Initialize animations
+      document.addEventListener("DOMContentLoaded", function () {
+        animateStats();
+      });
     </script>
-</body>
+  </body>
 </html>
