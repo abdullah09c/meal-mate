@@ -6,6 +6,12 @@ let members = [];
 let currentView = 'card'; // 'card' or 'table'
 let searchDebounceTimer = null;
 
+// Get adminId from URL parameters
+function getAdminId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('adminId') || '1'; // Default to 1 if not provided
+}
+
 // Initialize page when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM Content Loaded - bazar.js');
@@ -35,6 +41,12 @@ function initializePage() {
     loadMembers();
     loadBazarRecords();
     loadQuickSummary();
+    
+    // Populate filter dropdowns
+    populateYearFilter();
+    
+    // Setup filter event listeners
+    setupFilterEventListeners();
     
     // Setup form submission
     const bazarForm = document.getElementById('bazarForm');
@@ -102,7 +114,8 @@ function populateYearFilter() {
 
 async function loadMembers() {
     try {
-        const response = await fetch('/api/members');
+        const adminId = getAdminId();
+        const response = await fetch(`/api/members?adminId=${adminId}`);
         if (response.ok) {
             members = await response.json();
             populateMemberSelect();
@@ -129,6 +142,9 @@ function populateMemberSelect() {
         option.dataset.memberName = member.full_name || member.name;
         memberSelect.appendChild(option);
     });
+    
+    // Also populate member filter dropdown
+    populateMemberFilter();
 }
 
 function populateMemberFilter() {
@@ -145,13 +161,79 @@ function populateMemberFilter() {
     });
 }
 
+function setupFilterEventListeners() {
+    // Setup search input with debouncing
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
+    
+    // Setup filter dropdowns
+    const filterElements = [
+        'memberFilter',
+        'monthFilter', 
+        'yearFilter',
+        'sortBy'
+    ];
+    
+    filterElements.forEach(elementId => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.addEventListener('change', () => {
+                loadBazarRecords();
+            });
+        }
+    });
+    
+    // Setup amount filters
+    const minAmount = document.getElementById('minAmount');
+    const maxAmount = document.getElementById('maxAmount');
+    
+    if (minAmount) {
+        minAmount.addEventListener('change', () => {
+            loadBazarRecords();
+        });
+    }
+    
+    if (maxAmount) {
+        maxAmount.addEventListener('change', () => {
+            loadBazarRecords();
+        });
+    }
+}
+
 async function loadBazarRecords() {
     console.log('loadBazarRecords called');
     try {
         showLoadingState();
         
-        console.log('Fetching from /api/bazar');
-        const response = await fetch('/api/bazar');
+        const adminId = getAdminId();
+        
+        // Build URL with filters
+        const params = new URLSearchParams();
+        params.append('adminId', adminId);
+        
+        // Add filter parameters if they exist
+        const searchInput = document.getElementById('searchInput');
+        const memberFilter = document.getElementById('memberFilter');
+        const monthFilter = document.getElementById('monthFilter');
+        const yearFilter = document.getElementById('yearFilter');
+        const minAmount = document.getElementById('minAmount');
+        const maxAmount = document.getElementById('maxAmount');
+        const sortBy = document.getElementById('sortBy');
+        
+        if (searchInput && searchInput.value) params.append('search', searchInput.value);
+        if (memberFilter && memberFilter.value) params.append('member_id', memberFilter.value);
+        if (monthFilter && monthFilter.value) params.append('month', monthFilter.value);
+        if (yearFilter && yearFilter.value) params.append('year', yearFilter.value);
+        if (minAmount && minAmount.value) params.append('min_amount', minAmount.value);
+        if (maxAmount && maxAmount.value) params.append('max_amount', maxAmount.value);
+        if (sortBy && sortBy.value) params.append('sort', sortBy.value);
+        
+        const url = `/api/bazar?${params.toString()}`;
+        console.log('Fetching from:', url);
+        
+        const response = await fetch(url);
         console.log('Response status:', response.status, response.ok);
         
         if (response.ok) {
@@ -176,7 +258,21 @@ async function loadBazarRecords() {
 
 async function loadQuickSummary() {
     try {
-        const response = await fetch('/api/bazar/summary');
+        const adminId = getAdminId();
+        
+        // Build URL with adminId and optional month/year filters
+        const params = new URLSearchParams();
+        params.append('adminId', adminId);
+        
+        const monthFilter = document.getElementById('monthFilter');
+        const yearFilter = document.getElementById('yearFilter');
+        
+        if (monthFilter && monthFilter.value) params.append('month', monthFilter.value);
+        if (yearFilter && yearFilter.value) params.append('year', yearFilter.value);
+        
+        const url = `/api/bazar/summary?${params.toString()}`;
+        const response = await fetch(url);
+        
         if (response.ok) {
             const stats = await response.json();
             updateQuickSummaryCards(stats);
@@ -635,7 +731,9 @@ async function handleFormSubmit(e) {
         return;
     }
     
+    const adminId = getAdminId();
     const data = {
+        admin_id: parseInt(adminId),
         member_id: parseInt(formData.get('member_id')),
         member_name: selectedOption.dataset.memberName,
         total_cost: parseFloat(formData.get('total_cost')),
@@ -645,7 +743,7 @@ async function handleFormSubmit(e) {
     };
     
     try {
-        const url = currentEditId ? `/api/bazar/${currentEditId}` : '/api/bazar';
+        const url = currentEditId ? `/api/bazar/${currentEditId}?adminId=${adminId}` : `/api/bazar?adminId=${adminId}`;
         const method = currentEditId ? 'PUT' : 'POST';
         
         const response = await fetch(url, {
@@ -681,7 +779,8 @@ async function deleteBazarRecord(recordId) {
     }
     
     try {
-        const response = await fetch(`/api/bazar/${recordId}`, {
+        const adminId = getAdminId();
+        const response = await fetch(`/api/bazar/${recordId}?adminId=${adminId}`, {
             method: 'DELETE'
         });
         

@@ -2592,13 +2592,14 @@ body:has(.modern-dashboard) {
     border-radius: 20px;
     max-width: 600px;
     width: 100%;
-    /* max-height: calc(100vh - 2rem); */
+    max-height: calc(100vh - 1rem);
     overflow-y: auto;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
     position: relative;
-    transform: scale(0.75);
+    transform: scale(0.8);
     opacity: 0;
     transition: all 0.3s ease;
+    scrollbar-width: none;
 }
 
 .modal-overlay.active .modal-container {

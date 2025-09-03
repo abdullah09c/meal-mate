@@ -1512,6 +1512,7 @@ app.get('/api/bazar', (req, res) => {
 // Add new bazar record
 app.post('/api/bazar', (req, res) => {
   const { member_id, member_name, total_cost, date, description, items } = req.body;
+  const adminId = req.body.admin_id || req.query.adminId || 1;
   
   if (!member_id || !member_name || !total_cost || !date) {
     return res.status(400).json({ 
@@ -1519,27 +1520,47 @@ app.post('/api/bazar', (req, res) => {
       message: 'Member ID, name, total cost, and date are required' 
     });
   }
+
+  // First verify that the member belongs to this admin
+  const memberCheckQuery = 'SELECT id FROM members WHERE id = ? AND admin_id = ?';
   
-  const query = `
-    INSERT INTO bazar (member_id, member_name, total_cost, date, description, items)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `;
-  
-  const itemsJson = items ? JSON.stringify(items) : null;
-  
-  db.query(query, [member_id, member_name, total_cost, date, description, itemsJson], (err, result) => {
+  db.query(memberCheckQuery, [member_id, adminId], (err, memberResult) => {
     if (err) {
-      console.error('Error adding bazar record:', err);
+      console.error('Error verifying member:', err);
       return res.status(500).json({ 
         success: false, 
-        message: 'Error adding bazar record' 
+        message: 'Error verifying member' 
       });
     }
     
-    res.json({ 
-      success: true, 
-      message: 'Bazar record added successfully',
-      bazarId: result.insertId
+    if (memberResult.length === 0) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Member not found or access denied' 
+      });
+    }
+    
+    const query = `
+      INSERT INTO bazar (member_id, member_name, total_cost, date, description, items)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+    
+    const itemsJson = items ? JSON.stringify(items) : null;
+    
+    db.query(query, [member_id, member_name, total_cost, date, description, itemsJson], (err, result) => {
+      if (err) {
+        console.error('Error adding bazar record:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error adding bazar record' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Bazar record added successfully',
+        bazarId: result.insertId
+      });
     });
   });
 });
@@ -1548,6 +1569,7 @@ app.post('/api/bazar', (req, res) => {
 app.put('/api/bazar/:id', (req, res) => {
   const bazarId = req.params.id;
   const { member_id, member_name, total_cost, date, description, items } = req.body;
+  const adminId = req.body.admin_id || req.query.adminId || 1;
   
   if (!member_id || !member_name || !total_cost || !date) {
     return res.status(400).json({ 
@@ -1555,34 +1577,79 @@ app.put('/api/bazar/:id', (req, res) => {
       message: 'Member ID, name, total cost, and date are required' 
     });
   }
-  
-  const query = `
-    UPDATE bazar 
-    SET member_id = ?, member_name = ?, total_cost = ?, date = ?, description = ?, items = ?
-    WHERE id = ?
+
+  // First verify that the bazar record belongs to a member of this admin
+  const authCheckQuery = `
+    SELECT b.id 
+    FROM bazar b
+    LEFT JOIN members m ON b.member_id = m.id
+    WHERE b.id = ? AND m.admin_id = ?
   `;
   
-  const itemsJson = items ? JSON.stringify(items) : null;
-  
-  db.query(query, [member_id, member_name, total_cost, date, description, itemsJson, bazarId], (err, result) => {
+  db.query(authCheckQuery, [bazarId, adminId], (err, authResult) => {
     if (err) {
-      console.error('Error updating bazar record:', err);
+      console.error('Error verifying bazar record access:', err);
       return res.status(500).json({ 
         success: false, 
-        message: 'Error updating bazar record' 
+        message: 'Error verifying access' 
       });
     }
     
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ 
+    if (authResult.length === 0) {
+      return res.status(403).json({ 
         success: false, 
-        message: 'Bazar record not found' 
+        message: 'Bazar record not found or access denied' 
       });
     }
+
+    // Also verify that the new member_id belongs to this admin
+    const memberCheckQuery = 'SELECT id FROM members WHERE id = ? AND admin_id = ?';
     
-    res.json({ 
-      success: true, 
-      message: 'Bazar record updated successfully' 
+    db.query(memberCheckQuery, [member_id, adminId], (err, memberResult) => {
+      if (err) {
+        console.error('Error verifying member:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error verifying member' 
+        });
+      }
+      
+      if (memberResult.length === 0) {
+        return res.status(403).json({ 
+          success: false, 
+          message: 'Member not found or access denied' 
+        });
+      }
+      
+      const query = `
+        UPDATE bazar 
+        SET member_id = ?, member_name = ?, total_cost = ?, date = ?, description = ?, items = ?
+        WHERE id = ?
+      `;
+      
+      const itemsJson = items ? JSON.stringify(items) : null;
+      
+      db.query(query, [member_id, member_name, total_cost, date, description, itemsJson, bazarId], (err, result) => {
+        if (err) {
+          console.error('Error updating bazar record:', err);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Error updating bazar record' 
+          });
+        }
+        
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ 
+            success: false, 
+            message: 'Bazar record not found' 
+          });
+        }
+        
+        res.json({ 
+          success: true, 
+          message: 'Bazar record updated successfully' 
+        });
+      });
     });
   });
 });
@@ -1590,26 +1657,52 @@ app.put('/api/bazar/:id', (req, res) => {
 // Delete bazar record
 app.delete('/api/bazar/:id', (req, res) => {
   const bazarId = req.params.id;
+  const adminId = req.query.adminId || 1;
   
-  db.query('DELETE FROM bazar WHERE id = ?', [bazarId], (err, result) => {
+  // First verify that the bazar record belongs to a member of this admin
+  const authCheckQuery = `
+    SELECT b.id 
+    FROM bazar b
+    LEFT JOIN members m ON b.member_id = m.id
+    WHERE b.id = ? AND m.admin_id = ?
+  `;
+  
+  db.query(authCheckQuery, [bazarId, adminId], (err, authResult) => {
     if (err) {
-      console.error('Error deleting bazar record:', err);
+      console.error('Error verifying bazar record access:', err);
       return res.status(500).json({ 
         success: false, 
-        message: 'Error deleting bazar record' 
+        message: 'Error verifying access' 
       });
     }
     
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ 
+    if (authResult.length === 0) {
+      return res.status(403).json({ 
         success: false, 
-        message: 'Bazar record not found' 
+        message: 'Bazar record not found or access denied' 
       });
     }
     
-    res.json({ 
-      success: true, 
-      message: 'Bazar record deleted successfully' 
+    db.query('DELETE FROM bazar WHERE id = ?', [bazarId], (err, result) => {
+      if (err) {
+        console.error('Error deleting bazar record:', err);
+        return res.status(500).json({ 
+          success: false, 
+          message: 'Error deleting bazar record' 
+        });
+      }
+      
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Bazar record not found' 
+        });
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Bazar record deleted successfully' 
+      });
     });
   });
 });

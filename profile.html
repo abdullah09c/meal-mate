@@ -100,7 +100,6 @@
                         <p class="profile-email">admin@example.com</p>
                         <div class="profile-badges">
                             <span class="badge active">Active Administrator</span>
-                            <span class="badge joined">Admin Since 2024</span>
                         </div>
                     </div>
                 </div>
@@ -300,32 +299,35 @@
                 <span class="close">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="warning-message">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <h4>Warning: This action cannot be undone!</h4>
-                    <p>Deleting your admin account will permanently remove:</p>
-                    <ul>
+                <div class="warning-message" style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; text-align: center;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: #dc2626; margin-bottom: 1rem;"></i>
+                    <h4 style="color: #dc2626; margin: 0 0 1rem 0; font-size: 1.25rem;">Warning: This action cannot be undone!</h4>
+                    <p style="color: #7f1d1d; margin-bottom: 1rem;">Deleting your admin account will permanently remove:</p>
+                    <ul style="color: #7f1d1d; text-align: left; margin: 0; padding-left: 1.5rem;">
                         <li>Your administrator information</li>
                         <li>All managed meal records</li>
                         <li>Deposit management history</li>
                         <li>Member management associations</li>
                     </ul>
                 </div>
+                
                 <form id="deleteAccountForm">
                     <div class="form-group">
                         <label for="deletePassword">Enter your admin password to confirm:</label>
                         <input type="password" id="deletePassword" name="password" required 
                                placeholder="Enter your current admin password">
                     </div>
+                    
                     <div class="form-group">
-                        <label>
-                            <input type="checkbox" id="confirmDelete" required>
-                            I understand that this action is permanent and cannot be undone
+                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="confirmDelete" required style="width: auto;">
+                            <span>I understand that this action is permanent and cannot be undone</span>
                         </label>
                     </div>
+                    
                     <div class="modal-footer">
                         <button type="button" class="cancel-btn">Cancel</button>
-                        <button type="submit" class="delete-btn">Delete My Admin Account</button>
+                        <button type="submit" class="delete-btn" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Delete My Admin Account</button>
                     </div>
                 </form>
             </div>
