@@ -69,18 +69,27 @@ Make sure you have installed:
 
 3. The application will automatically create required tables on first run
 
-### 3. Configure Database Connection
+### 3. Environment Configuration
 
-In `server.js`, update the database connection settings:
+1. Copy the environment template file:
 
-```javascript
-const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'your_mysql_username',    // Change this
-  password: 'your_mysql_password', // Change this
-  database: 'meal_management'     // Updated database name
-});
-```
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Update the `.env` file with your database credentials:
+
+   ```env
+   DB_HOST=localhost
+   DB_USER=your_mysql_username
+   DB_PASSWORD=your_mysql_password
+   DB_NAME=meal_mate
+   PORT=3000
+   BCRYPT_SALT_ROUNDS=10
+   NODE_ENV=development
+   ```
+
+3. **Important**: Never commit the `.env` file to version control as it contains sensitive information
 
 ### 4. Install Dependencies
 
@@ -217,6 +226,7 @@ Response:
 The Meal Mate database follows proper normalization principles to ensure data integrity and efficient storage:
 
 #### ✅ **First Normal Form (1NF) - Achieved**
+
 - **Atomic Values**: Each column contains indivisible data (no comma-separated values)
 - **Unique Rows**: Primary keys ensure row uniqueness across all tables
 - **No Repeating Groups**: No repeated columns like `meal1`, `meal2`, etc.
@@ -229,6 +239,7 @@ dinner_count INTEGER      -- Single atomic value
 ```
 
 #### ✅ **Second Normal Form (2NF) - Achieved**
+
 - **Eliminates Partial Dependencies**: All non-key attributes depend on the entire primary key
 - **Proper Foreign Key Relationships**: Clean relationships between admins, members, meals, expenses, and deposits
 
@@ -241,6 +252,7 @@ Table meal_records:
 #### ⚠️ **Third Normal Form (3NF) - Design Choice**
 
 **Current Structure (2NF with denormalization):**
+
 ```sql
 -- Intentional denormalization for performance
 meal_records: id, member_id, member_name, date, meal_counts
@@ -258,12 +270,14 @@ bazar: id, member_id, member_name, total_cost, date
 | **Real-world Usage** | ✅ Optimized for read-heavy operations | ✅ Better for write-heavy operations |
 
 **Benefits of Our Approach:**
+
 - **Performance Optimization**: Read-heavy meal management operations are faster
 - **Simplicity**: Easier maintenance and debugging
 - **Practical Design**: Member names rarely change in hostel environments
 - **Acceptable Trade-off**: Minimal redundancy for significant performance gains
 
 **Database Design Principles Applied:**
+
 - ✅ **ACID Compliance**: Atomicity, Consistency, Isolation, Durability
 - ✅ **Referential Integrity**: Foreign key constraints maintain data relationships
 - ✅ **Data Consistency**: Multi-tenant isolation prevents data mixing
@@ -275,7 +289,7 @@ The Entity-Relationship diagram below illustrates the database structure and rel
 
 ![ER Diagram](er-diagram-mealmate.png)
 
-### Key Relationships:
+### Key Relationships
 
 - **Admins (1) → Members (N)**: One admin can manage multiple members
 - **Members (1) → Meal Records (N)**: One member can have multiple daily meal records
@@ -283,7 +297,7 @@ The Entity-Relationship diagram below illustrates the database structure and rel
 - **Admins (1) → Deposits (N)**: One admin can manage multiple deposit records
 - **Members (1) → Deposits (N)**: One member can make multiple deposits (optional relationship)
 
-### Entity Details:
+### Entity Details
 
 - **system_admins**: Store admin authentication and profile information
 - **system_members**: Store member details with admin association

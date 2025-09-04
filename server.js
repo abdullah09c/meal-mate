@@ -3,9 +3,10 @@ const mysql = require('mysql2');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
@@ -15,10 +16,10 @@ app.use(express.static(path.join(__dirname)));
 
 // MySQL database connection
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'mate', // Change this to your MySQL username
-  password: 'Abc1234@', // Change this to your MySQL password
-  database: 'meal_mate'
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'meal_mate'
 });
 
 // Connect to MySQL
@@ -407,7 +408,7 @@ app.post('/signup', async (req, res) => {
       }
       
       // Hash password
-      const saltRounds = 10;
+      const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
       const passwordHash = await bcrypt.hash(password, saltRounds);
       
       // Insert new admin
@@ -820,7 +821,7 @@ app.put('/api/change-admin-password', async (req, res) => {
       }
       
       // Hash new password
-      const saltRounds = 10;
+      const saltRounds = parseInt(process.env.BCRYPT_SALT_ROUNDS) || 10;
       const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
       
       // Update password

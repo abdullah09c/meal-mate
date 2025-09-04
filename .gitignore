@@ -193,3 +193,5 @@ debug-bazar-detailed.html
 debug-bazar.html
 debug-bazar-simple.html
 debug-members.js
+.env
+.env.example
